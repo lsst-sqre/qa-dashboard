@@ -18,7 +18,7 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    	url(r'^admin/', include(admin.site.urls)),
-	url(r'^(?P<name>[\w./-]+)/$', views.show_page, name='page'),
-	url(r'^$', views.show_page),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^(?P<name>[\w./-]+)/$', views.show_page, name='page'),
+    url(r'^$', views.show_page),
 ]

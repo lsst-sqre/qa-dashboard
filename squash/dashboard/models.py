@@ -7,9 +7,10 @@ class Dataset(models.Model):
     camera = models.TextField()
     description = models.TextField()
     date = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return self.name
+
 
 class Visit(models.Model):
     visitId = models.AutoField(primary_key=True)
@@ -28,7 +29,8 @@ class Visit(models.Model):
     hourAngle = models.FloatField()
 
     def __str__(self):
-        return visit
+        return self.visit
+
 
 class Ccd(models.Model):
     ccdId = models.AutoField(primary_key=True)
@@ -61,7 +63,4 @@ class Ccd(models.Model):
     log = models.TextField()
 
     def __str__(self):
-        return ccd
-
-
-
+        return self.ccd
