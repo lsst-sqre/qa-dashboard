@@ -1,3 +1,9 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ block.super }} - {{ slug|capfirst }}{% endblock %}
+
+{% block content %}
 <div class="container">
     <br/>
     <div class="row">
@@ -47,3 +53,4 @@
     </div>
 </div>
 <hr>
+{% endblock %}

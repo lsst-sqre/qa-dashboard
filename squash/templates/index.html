@@ -1,3 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ block.super }} - {{ slug|capfirst }}{% endblock %}
+
+{% block content %}
+
+
+
 <div class="jumbotron">
     <div class="container">
         <h1>SQUASH</h1>
@@ -45,3 +53,4 @@
 <hr>
 
 
+{% endblock %}
