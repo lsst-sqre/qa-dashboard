@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ block.super }} - {{ slug|capfirst }}{% endblock %}
+
+{% block content %}
+
+
+
+<div class="jumbotron">
+    <div class="container">
+        <h1>SQUASH</h1>
+        <p>A SQuaRE service for the verification datasets group.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Purpose</h2>
+            <p>SQUASH provides a minimum infrastructure for 
+            the verification datasets group to carry out QA analysis 
+            on precursor datasets with the LSST stack.
+
+            As a prototype SQUASH can be used and extended by the verification 
+            scientists, while preserving the code and knowledge developed by 
+            this group in a centralized place.
+
+            </p>
+        </div>
+        <div class="col-md-6">
+            <h2>How to Use</h2>
+            <p>
+            
+            Start by selecting a dataset registered in SQUASH and
+            check the existing features, then learn how to extend 
+            the system. 
+
+            </p>
+            <p>
+                <a class="btn btn-default"
+                    href="{% url 'page' 'dashboard' %}" role="button">
+                    Go >>
+                </a>
+                 <a class="btn btn-default"
+                    href="{% url 'page' 'learn' %}" role="button">
+                    Learn more
+                </a>
+</p>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+
+{% endblock %}
