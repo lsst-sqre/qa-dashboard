@@ -1,66 +1,44 @@
 from django.db import models
 
 
-class Dataset(models.Model):
-    datasetId = models.AutoField(primary_key=True)
-    name = models.TextField()
-    camera = models.TextField()
+class Job(models.Model):
+    """Job information"""
+    STATUS_OK = 0
+    STATUS_FAILED = 1
+
+    jobId = models.AutoField(primary_key=True)
+    name = models.DateTimeField()
+    build = models.CharField(max_length=16, blank=False)
+    start = models.DateTimeField()
+    duration = models.DateTimeField()
+    status = models.SmallIntegerField(default=STATUS_OK)
+
+    def __str__(self):
+        return self.build
+
+
+class Metric(models.Model):
+    """Metric information"""
+    metricId = models.AutoField(primary_key=True)
+    name = models.TextField(blank=False, unique=True)
     description = models.TextField()
-    date = models.DateTimeField(auto_now=True)
+    units = models.CharField(max_length=16)
+    condition = models.CharField(max_length=2, blank=False, default='<')
+    minimum = models.FloatField(null=False)
+    design = models.FloatField(null=False)
+    stretch = models.FloatField(null=False)
+    user = models.FloatField(null=False)
 
     def __str__(self):
         return self.name
 
 
-class Visit(models.Model):
-    visitId = models.AutoField(primary_key=True)
-    datasetId = models.ForeignKey(Dataset)
-    visit = models.IntegerField()
-    mjd = models.IntegerField()
-    nExposures = models.IntegerField()
-    exposureType = models.TextField()
-    exposureStart = models.DateTimeField()
-    exposureTime = models.IntegerField()
-    filter = models.CharField(max_length=1)
-    telRa = models.FloatField()
-    telDecl = models.FloatField()
-    zenithDistance = models.FloatField()
-    airMass = models.FloatField()
-    hourAngle = models.FloatField()
+class Measurement(models.Model):
+    """Measurement of a metric by a process"""
+    measurementId = models.AutoField(primary_key=True)
+    jobId = models.ForeignKey(Job, null=False)
+    metricId = models.ForeignKey(Metric, null=False)
+    value = models.FloatField(null=False)
 
     def __str__(self):
-        return self.visit
-
-
-class Ccd(models.Model):
-    ccdId = models.AutoField(primary_key=True)
-    visitId = models.ForeignKey(Visit)
-    ccd = models.TextField()
-    llra = models.FloatField()
-    lldecl = models.FloatField()
-    urra = models.FloatField()
-    urdecl = models.FloatField()
-    medianSkyBkg = models.FloatField()
-    madSkyBkg = models.FloatField()
-    medianFwhm = models.FloatField()
-    madFwhm = models.FloatField()
-    medianR50 = models.FloatField()
-    madR50 = models.FloatField()
-    medianMajorAxis = models.FloatField()
-    madMajorAxis = models.FloatField()
-    medianMinorAxis = models.FloatField()
-    madMinorAxis = models.FloatField()
-    medianTheta = models.FloatField()
-    madTheta = models.FloatField()
-    medianScatterRa = models.FloatField()
-    madScatterRa = models.FloatField()
-    medianScatterDecl = models.FloatField()
-    madScatterDecl = models.FloatField()
-    medianScatterPsfFlux = models.FloatField()
-    madScatterPsfFlux = models.FloatField()
-    nSources = models.IntegerField()
-    nCosmicRays = models.IntegerField()
-    log = models.TextField()
-
-    def __str__(self):
-        return self.ccd
+        return self.value
