@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Dataset, Visit, Ccd
+from .models import Job, Metric, Measurement
 
-admin.site.register(Dataset)
-admin.site.register(Visit)
-admin.site.register(Ccd)
+admin.site.register(Job)
+admin.site.register(Metric)
+admin.site.register(Measurement)
