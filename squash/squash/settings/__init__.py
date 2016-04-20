@@ -1,1 +1,1 @@
-from .dev import *
+from . import dev

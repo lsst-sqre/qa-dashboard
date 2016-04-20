@@ -5,7 +5,7 @@
 #
 # export DJANGO_SETTINGS_MODULE=squash.settings.production
 
-from .defaults import *
+from . import defaults
 
 # WARNING: the following parameters are no suitable for production yet
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/

@@ -26,4 +26,3 @@ urlpatterns = [
     url(r'^api/token/', obtain_auth_token, name='api-token'),
     url(r'^$', views.show_page)
 ]
-

@@ -8,10 +8,12 @@ TEST_USER_PASSWD = os.environ.get("USER")
 
 API_URL = "http://localhost:8000/api"
 
+
 def test_api_root():
     """Access to the api root"""
     r = requests.get(API_URL)
     assert r.status_code == 200
+
 
 def test_auth():
     """Attempt to access a resource without authentication"""
@@ -23,9 +25,10 @@ def test_auth():
         r = requests.get(api[endpoint])
         assert r.status_code == 401
 
+
 def test_post():
 
-    metric ={
+    metric = {
                 "name": "PA1",
                 "description": "Photometric Repeatability",
                 "units": "millimag",
@@ -33,12 +36,13 @@ def test_post():
                 "design": "5",
                 "stretch": "3",
                 "user": "5"
-            }
+             }
     r = requests.get(API_URL)
     api = r.json()
 
     r = requests.get(api['metric'], auth=(TEST_USER, TEST_USER_PASSWD))
     assert r.status_code == 200
 
-    r = requests.post(api['metric'], data=metric, auth=(TEST_USER, TEST_USER_PASSWD))
+    r = requests.post(api['metric'], data=metric,
+                      auth=(TEST_USER, TEST_USER_PASSWD))
     assert r.status_code == 201

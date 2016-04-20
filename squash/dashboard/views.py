@@ -4,7 +4,10 @@ from .serializers import JobSerializer, MetricSerializer, MeasurementSerializer
 
 
 class DefaultsMixin(object):
-    """Default settings for view authentication, permissions, filtering and pagination."""
+    """
+    Default settings for view authentication, permissions,
+    filtering and pagination.
+    """
 
     authentication_classes = (
         authentication.BasicAuthentication,
