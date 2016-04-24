@@ -6,11 +6,10 @@ class Job(models.Model):
     STATUS_OK = 0
     STATUS_FAILED = 1
 
-    jobId = models.AutoField(primary_key=True)
-    name = models.DateTimeField()
+    name = models.CharField(max_length=32, blank=False)
     build = models.CharField(max_length=16, blank=False)
-    start = models.DateTimeField()
-    duration = models.DateTimeField()
+    runtime = models.DateTimeField(auto_now=True)
+    url = models.TextField(null=False)
     status = models.SmallIntegerField(default=STATUS_OK)
 
     def __str__(self):
@@ -19,8 +18,7 @@ class Job(models.Model):
 
 class Metric(models.Model):
     """Metric information"""
-    metricId = models.AutoField(primary_key=True)
-    name = models.TextField(blank=False, unique=True)
+    metric = models.CharField(max_length=16, primary_key=True)
     description = models.TextField()
     units = models.CharField(max_length=16)
     condition = models.CharField(max_length=2, blank=False, default='<')
@@ -30,15 +28,14 @@ class Metric(models.Model):
     user = models.FloatField(null=False)
 
     def __str__(self):
-        return self.name
+        return self.metric
 
 
 class Measurement(models.Model):
     """Measurement of a metric by a process"""
-    measurementId = models.AutoField(primary_key=True)
-    jobId = models.ForeignKey(Job, null=False)
-    metricId = models.ForeignKey(Metric, null=False)
-    value = models.FloatField(null=False)
+    metric = models.ForeignKey(Metric, null=False)
+    job = models.ForeignKey(Job, null=False, related_name='measurements')
+    value = models.FloatField(blank=False)
 
-    def __str__(self):
+    def __float__(self):
         return self.value

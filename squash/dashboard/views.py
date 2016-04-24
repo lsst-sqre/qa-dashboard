@@ -1,6 +1,6 @@
 from rest_framework import authentication, permissions, viewsets
-from .models import Job, Metric, Measurement
-from .serializers import JobSerializer, MetricSerializer, MeasurementSerializer
+from .models import Job, Metric
+from .serializers import JobSerializer, MetricSerializer
 
 
 class DefaultsMixin(object):
@@ -26,19 +26,12 @@ class DefaultsMixin(object):
 class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating jobs"""
 
-    queryset = Job.objects.order_by('jobId')
+    queryset = Job.objects.order_by('name')
     serializer_class = JobSerializer
 
 
 class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating metrics"""
 
-    queryset = Metric.objects.order_by('metricId')
+    queryset = Metric.objects.order_by('metric')
     serializer_class = MetricSerializer
-
-
-class MeasurementViewSet(DefaultsMixin, viewsets.ModelViewSet):
-    """API endpoint for listing and creating measurements"""
-
-    queryset = Measurement.objects.order_by('measurementId')
-    serializer_class = MeasurementSerializer
