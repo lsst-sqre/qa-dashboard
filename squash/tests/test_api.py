@@ -41,7 +41,7 @@ def test_post_metric():
     r = requests.get(API_URL)
     api = r.json()
 
-    r = requests.post(api['metric'], data=metric,
+    r = requests.post(api['metric'], json=metric,
                       auth=(TEST_USER, TEST_PASSWD))
     assert r.status_code == 201
 
@@ -61,7 +61,7 @@ def test_post_job():
             "status": 0
           }
 
-    r = requests.post(api['job'], data=job,
+    r = requests.post(api['job'], json=job,
                       auth=(TEST_USER, TEST_PASSWD))
 
     assert r.status_code == 201
