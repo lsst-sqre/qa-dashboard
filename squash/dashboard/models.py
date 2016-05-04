@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+from .bokeh_utils import update_bokeh_sessions
 
 
 class Job(models.Model):
@@ -11,6 +13,9 @@ class Job(models.Model):
     runtime = models.DateTimeField(auto_now=True)
     url = models.TextField(null=False)
     status = models.SmallIntegerField(default=STATUS_OK)
+
+    def get_jobs(self):
+        pass
 
     def __str__(self):
         return self.build
@@ -39,3 +44,17 @@ class Measurement(models.Model):
 
     def __float__(self):
         return self.value
+
+    def save(self, *args, **kwargs):
+        super(Measurement, self).save(*args, **kwargs)
+        # When a new measurement is saved, update all the data
+        # for the bokeh sessions.
+        # Improvements:
+        # - Only update metrics affected by this data
+        # (only get affected Sessions)
+        update_bokeh_sessions(UserSession.objects.all())
+
+
+class UserSession(models.Model):
+    user = models.ForeignKey(User, null=False)
+    bokehSessionId = models.CharField(max_length=64)
