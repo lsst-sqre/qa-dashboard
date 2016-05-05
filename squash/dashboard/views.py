@@ -1,6 +1,13 @@
+from django.contrib.auth.models import User
+from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
+
 from rest_framework import authentication, permissions, viewsets
 from .models import Job, Metric
 from .serializers import JobSerializer, MetricSerializer
+
+from .bokeh_utils import get_bokeh_script
+from .viz.metrics import make_metric_plot
 
 
 class DefaultsMixin(object):
@@ -35,3 +42,24 @@ class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     queryset = Metric.objects.order_by('metric')
     serializer_class = MetricSerializer
+
+
+class HomeView(TemplateView):
+    template_name = 'dashboard/index.html'
+
+
+class MetricDashboardView(DetailView):
+    template_name = 'dashboard/metric.html'
+    model = User
+
+    def get_context_data(self, **kwargs):
+        context = super(MetricDashboardView, self).get_context_data(**kwargs)
+        context.update(
+            dashboard='metric'
+        )
+        plot = make_metric_plot(user=self.object)
+        metric_script = get_bokeh_script(user=self.object,
+                                         plot=plot,
+                                         suffix='metric')
+        context.update(metric_script=metric_script)
+        return context
