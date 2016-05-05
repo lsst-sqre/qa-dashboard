@@ -4,13 +4,14 @@ from bokeh.models import Legend
 from bokeh.models import DatetimeTickFormatter
 
 
-def time_series_defaults(hover):
+def init_time_series_plot(hover):
     """
     Defaults for time series plot
     """
     plot = Figure(
         plot_height=400,
         plot_width=900,
+        responsive=True,
         tools="xpan,xwheel_zoom,xbox_zoom,reset",
         x_axis_type='datetime',
         min_border_top=0,
@@ -33,7 +34,7 @@ def time_series_defaults(hover):
     return plot
 
 
-def legend_defaults(legends):
+def init_legend(legends):
     return Legend(
         legends=legends,
         location='top_right',

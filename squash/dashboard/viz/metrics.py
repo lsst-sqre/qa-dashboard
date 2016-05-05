@@ -1,7 +1,7 @@
 from datetime import datetime
 from bokeh.models import HoverTool
 from bokeh.models import ColumnDataSource
-from .plots import time_series_defaults, legend_defaults
+from .defaults import init_time_series_plot, init_legend
 
 
 def update_metric_data(user, session):
@@ -25,7 +25,7 @@ def make_metric_plot(user):
 
     hover = HoverTool(tooltips=[("Build", "@desc"), (metric, "@y "+unit)])
 
-    plot = time_series_defaults(hover=hover)
+    plot = init_time_series_plot(hover=hover)
 
     line = plot.line(
             x='x', y='y', source=source,
@@ -37,5 +37,5 @@ def make_metric_plot(user):
     plot.yaxis.axis_label = metric + '(' + unit + ')'
 
     legends.append((metric, [line]))
-    plot.add_layout(legend_defaults(legends=legends))
+    plot.add_layout(init_legend(legends=legends))
     return plot
