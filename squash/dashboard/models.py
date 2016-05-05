@@ -1,3 +1,4 @@
+import json
 from django.db import models
 from django.contrib.auth.models import User
 from .bokeh_utils import update_bokeh_sessions
@@ -19,6 +20,41 @@ class Job(models.Model):
 
     def __str__(self):
         return self.build
+
+
+class Package(models.model):
+    """Software package (generally an Eups package, e.g., `afw`)."""
+    # e.g. 'afw'
+    name = models.TextField()
+    # e.g. https://github.com/lsst/afw.git
+    git_url = models.TextField()
+
+    def __str__(self):
+        return json.dumps({'_class': 'Package',
+                           'name': self.name,
+                           'git_url': self.git_url},
+                          indent=2, sort_keys=True)
+
+
+class PackageVersion(models.Model):
+    """Version information of an Eups Product used in a Job."""
+    job = models.ForeignKey(Job, null=False)
+    package = models.ForeignKey(Package, null=False)
+    # SHA1 hash of the git commit
+    git_commit = models.CharField(max_length=40, null=False)
+    # resolved git branch that the commit resides on
+    git_branch = models.TextField()
+    # Eups version information
+    build_version = models.TextField()
+
+    def __str__(self):
+        return json.dumps({'_class': 'PackageVersion',
+                           'job.build': self.job.build,
+                           'package.name': self.package.name,
+                           'git_commit': self.git_commit,
+                           'git_branch': self.git_branch,
+                           'build_version': self.build_version},
+                          indent=2, sort_keys=True)
 
 
 class Metric(models.Model):
