@@ -1,0 +1,14 @@
+{
+    "astromRmsScatter": 10.626203101443256, 
+    "doc": "Calculate expected astrometric uncertainty based on SNR.\n\n    mas = C*theta/SNR + sigmaSys\n\n    Parameters\n    ----------\n    snr : list or numpy.array\n        S/N of photometric measurements\n    theta : float or numpy.array, optional\n        Seeing\n    sigmaSys : float\n        Systematic error floor\n    C : float\n        Scaling factor\n\n    theta and sigmaSys must be given in the same units.\n    Typically choices might be any of arcsec, milli-arcsec, or radians\n    The default values are reasonable astronominal values in milliarcsec.\n    But the only thing that matters is that they're the same.\n\n    Returns\n    -------\n    np.array\n        Expected astrometric uncertainty.\n        Units will be those of theta + sigmaSys.\n    ", 
+    "model_name": "astromErrModel", 
+    "name": "checkAstrometry", 
+    "params": {
+        "C": 1, 
+        "cUnits": "", 
+        "sigmaSys": 7.6030442578879969, 
+        "sigmaSysUnits": "mas", 
+        "theta": 1219.3691628453412, 
+        "thetaUnits": "mas"
+    }
+}

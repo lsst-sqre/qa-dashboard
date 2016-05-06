@@ -1,0 +1,14 @@
+{
+    "doc": "Fit model of photometric error from LSST Overview paper\n    http://arxiv.org/abs/0805.2366v4\n\n    Photometric errors described by\n    Eq. 4\n    sigma_1^2 = sigma_sys^2 + sigma_rand^2\n\n    Eq. 5\n    sigma_rand^2 = (0.04 - gamma) * x + gamma * x^2 [mag^2]\n    where x = 10**(0.4*(m-m_5))\n\n    Parameters\n    ----------\n    mag : list or numpy.array\n        Magnitude\n    sigmaSq : float\n        Limiting systematics floor [mag]\n    gamma : float\n        proxy for sky brightness and readout noise\n    m5 : float\n        5-sigma depth [mag]\n\n    Returns\n    -------\n    numpy.array\n        Result of noise estimation function\n    ", 
+    "model_name": "photErrModel", 
+    "name": "checkPhotometry", 
+    "params": {
+        "gamma": 0.033907991790827596, 
+        "gammaUnits": "", 
+        "m5": 55.191500628103043, 
+        "m5Units": "mag", 
+        "sigmaSys": 0.02107649269539159, 
+        "sigmaSysUnits": "mmag"
+    }, 
+    "photRmsScatter": 43.61317192232228
+}
