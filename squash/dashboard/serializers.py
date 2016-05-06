@@ -46,17 +46,12 @@ class JobSerializer(serializers.ModelSerializer):
         fields = ('name', 'build', 'runtime',
                   'url', 'status', 'measurements', 'links',)
 
-    """ Override the create method to create nested objects
-    from request data
-    """
-
+    # Override the create method to create nested objects from request data
     def create(self, data):
         measurements = data.pop('measurements')
 
-        """ Use transactions, so that if one of the measurement
-        objects isn't valid that we will rollback even the
-        parent Job object creation
-        """
+        # Use transactions, so that if one of the measurement objects isn't
+        # valid that we will rollback even the parent Job object creation
         with transaction.atomic():
             job = Job.objects.create(**data)
             for measurement in measurements:
