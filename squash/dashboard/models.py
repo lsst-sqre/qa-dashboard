@@ -8,11 +8,15 @@ class Job(models.Model):
     STATUS_OK = 0
     STATUS_FAILED = 1
 
-    name = models.CharField(max_length=32, blank=False)
-    build = models.CharField(max_length=16, blank=False)
-    runtime = models.DateTimeField(auto_now=True)
-    url = models.TextField(null=False)
-    status = models.SmallIntegerField(default=STATUS_OK)
+    name = models.CharField(max_length=32, blank=False,
+                            help_text='Name of Job')
+    build = models.CharField(max_length=16, blank=False,
+                             help_text='Jenkins job ID')
+    runtime = models.DateTimeField(auto_now=True,
+                                   help_text='Datetime when job was run')
+    url = models.TextField(null=False, help_text='Jenkins job URL')
+    status = models.SmallIntegerField(default=STATUS_OK,
+                                      help_text='Job status, 0=OK, 1=Failed')
 
     def get_jobs(self):
         pass
