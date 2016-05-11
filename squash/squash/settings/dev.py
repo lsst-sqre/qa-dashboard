@@ -13,3 +13,5 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+BOKEH_URL='http://localhost:5007'
