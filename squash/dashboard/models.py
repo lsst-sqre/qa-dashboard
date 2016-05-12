@@ -13,8 +13,8 @@ class Job(models.Model):
                             help_text='Name of Job')
     build = models.CharField(max_length=16, blank=False,
                              help_text='Jenkins job ID')
-    runtime = models.DateTimeField(auto_now=True,
-                                   help_text='Datetime when job was run')
+    date = models.DateTimeField(auto_now=True,
+                                help_text='Datetime when job was run')
     ci_url = models.URLField(null=False, help_text='Jenkins job URL')
     status = models.SmallIntegerField(default=STATUS_OK,
                                       help_text='Job status, 0=OK, 1=Failed')

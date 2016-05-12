@@ -56,7 +56,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ('name', 'build', 'runtime',
+        fields = ('name', 'build', 'date',
                   'ci_url', 'status', 'measurements', 'packages',
                   'links')
 
