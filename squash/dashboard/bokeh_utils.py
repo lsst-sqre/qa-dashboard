@@ -3,7 +3,12 @@ from bokeh.client import push_session, pull_session
 from bokeh.document import Document
 from bokeh.embed import autoload_server
 from .viz.metrics import update_metric_data
+from django.conf import settings
 
+try:
+    bokeh_url = settings.BOKEH_URL
+except AttributeError:
+    bokeh_url='default'
 
 def get_bokeh_script(user, plot, suffix):
 
@@ -12,18 +17,18 @@ def get_bokeh_script(user, plot, suffix):
     document.add_root(plot)
     document.title = suffix
 
-    with closing(push_session(document)) as session:
+    with closing(push_session(document, url=bokeh_url)) as session:
         # Save the session id
         UserSession.objects.create(user=user, bokehSessionId=session.id)
         # Get the script to pass into the template
-        script = autoload_server(None, session_id=session.id)
+        script = autoload_server(None, session_id=session.id, url=bokeh_url)
 
     return script
 
 
 def update_bokeh_sessions(user_sessions):
     for us in user_sessions:
-        with closing(pull_session(session_id=us.bokehSessionId)) as session:
+        with closing(pull_session(session_id=us.bokehSessionId, url=bokeh_url)) as session:
             if len(session.document.roots) == 0:
                 # In this case, the session_id was from a dead session and
                 # calling pull_session caused a new empty session to be
