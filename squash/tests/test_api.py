@@ -41,7 +41,7 @@ def test_post_metric():
     r = requests.get(API_URL)
     api = r.json()
 
-    r = requests.post(api['metric'], json=metric,
+    r = requests.post(api['metrics'], json=metric,
                       auth=(TEST_USER, TEST_PASSWD))
     assert r.status_code == 201
 
@@ -53,15 +53,23 @@ def test_post_job():
     r = requests.get(API_URL)
     api = r.json()
 
+    packages = [
+        {'name': 'afw',
+         'git_url': 'https://github.com/lsst/afw.git',
+         'git_commit': 'fc355a99abe3425003b0e5fbe1e13a39644b1e95',
+         'git_branch': 'master',
+         'build_version': 'b2000'}]
+    measurements = [{"metric": "test1", "value": 3.0}]
     job = {
-            "name": "ci_cfht",
-            "build": "1",
-            "url": "https://ci.lsst.codes/job/ci_cfht/1/",
-            "measurements": [{"metric": "test1", "value": 3.0}],
-            "status": 0
-          }
+        "name": "ci_cfht",
+        "build": "1",
+        "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
+        "measurements": measurements,
+        "packages": packages,
+        "status": 0
+    }
 
-    r = requests.post(api['job'], json=job,
+    r = requests.post(api['jobs'], json=job,
                       auth=(TEST_USER, TEST_PASSWD))
 
     assert r.status_code == 201
