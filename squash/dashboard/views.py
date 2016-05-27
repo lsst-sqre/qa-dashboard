@@ -1,13 +1,9 @@
-from django.contrib.auth.models import User
-from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
-
+from django.views.generic import ListView
 from rest_framework import authentication, permissions, viewsets
+from .viz.metrics import make_time_series_plot
+from .bokeh_utils import get_bokeh_script
 from .models import Job, Metric
 from .serializers import JobSerializer, MetricSerializer
-
-from .bokeh_utils import get_bokeh_script
-from .viz.metrics import make_metric_plot
 
 
 class DefaultsMixin(object):
@@ -33,7 +29,7 @@ class DefaultsMixin(object):
 class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating jobs"""
 
-    queryset = Job.objects.order_by('name')
+    queryset = Job.objects.order_by('ci_name')
     serializer_class = JobSerializer
 
 
@@ -44,22 +40,25 @@ class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):
     serializer_class = MetricSerializer
 
 
-class HomeView(TemplateView):
+class HomeView(ListView):
+    model = Metric
     template_name = 'dashboard/index.html'
 
 
-class MetricDashboardView(DetailView):
+class ListMetricsView(ListView):
+    model = Metric
     template_name = 'dashboard/metric.html'
-    model = User
 
     def get_context_data(self, **kwargs):
-        context = super(MetricDashboardView, self).get_context_data(**kwargs)
-        context.update(
-            dashboard='metric'
-        )
-        plot = make_metric_plot(user=self.object)
-        metric_script = get_bokeh_script(user=self.object,
-                                         plot=plot,
-                                         suffix='metric')
-        context.update(metric_script=metric_script)
+
+        context = super(ListMetricsView, self).get_context_data(**kwargs)
+        selected_metric = self.kwargs['pk']
+        context['selected_metric'] = selected_metric
+
+        plot = make_time_series_plot(selected_metric)
+
+        bokeh_script = get_bokeh_script(plot=plot)
+
+        context.update(metric_script=bokeh_script)
+
         return context
