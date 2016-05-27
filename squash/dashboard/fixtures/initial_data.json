@@ -1,0 +1,38 @@
+[
+  {
+    "model": "dashboard.metric",
+    "pk": "PA1",
+    "fields": {
+        "description": "Median RMS of visit-to-visit relative photometry.",
+        "units": "millimag",
+        "minimum": 8,
+        "design": 5,
+        "stretch": 3,
+        "user": 5
+    }
+  },
+  {
+    "model": "dashboard.metric",
+    "pk": "AM1",
+    "fields": {
+      "description": "Median RMS of the astrometric distance distribution for stellar pairs with separation of 1 arcmin (repeatability)",
+      "units": "millimag",
+      "minimum": 20,
+      "design": 10,
+      "stretch": 5,
+      "user": 10
+    }
+  },
+  {
+    "model": "dashboard.metric",
+    "pk": "AM2",
+    "fields": {
+        "description": "Median RMS of the astrometric distance distribution for stellar pairs with separation of 2 arcmin (repeatability)",
+        "units": "millimag",
+        "minimum": 20,
+        "design": 10,
+        "stretch": 5,
+        "user": 10
+    }
+   }
+]

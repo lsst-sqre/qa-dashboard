@@ -24,7 +24,7 @@ then
     python manage.py createsuperuser --username $TEST_USER --email $TEST_USER_EMAIL
 
 fi
-
+python manage.py loaddata initial_data
 python manage.py runserver
 
 
