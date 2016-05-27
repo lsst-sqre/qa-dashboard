@@ -12,7 +12,7 @@ def init_time_series_plot(hover):
         plot_height=400,
         plot_width=900,
         responsive=True,
-        tools="xpan,xwheel_zoom,xbox_zoom,reset",
+        tools="xpan,xwheel_zoom,xbox_zoom,reset,tap",
         x_axis_type='datetime',
         min_border_top=0,
         min_border_right=10,
@@ -23,7 +23,7 @@ def init_time_series_plot(hover):
     plot.add_tools(hover)
     plot.x_range.follow = "end"
     plot.x_range.range_padding = 0
-    plot.xaxis.axis_label = "Runtime"
+    plot.xaxis.axis_label = "Date"
     plot.xaxis.major_label_orientation = pi/4
     plot.xaxis.formatter = DatetimeTickFormatter(formats=dict(
         hours=["%d %B"],
