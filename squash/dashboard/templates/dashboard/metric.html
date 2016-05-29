@@ -12,22 +12,24 @@
         <div class="col-xs-2">
           <ul class="nav nav-pills nav-stacked">
 
-              <!-- using fixed metric list for now -->
-
               <li role="presentation"><h4>Metrics</h4></li>
               <hr>
-              <li role="presentation">Astrometry</li>
-              <li role="presentation"><a href="">AM1</a></li>
-              <li role="presentation"><a href="">AM2</a></li>
-              <li role="presentation">Photometry Repeatability</li>
-              <li role="presentation"><a href="">PA1</a></li>
-              <li role="presentation"><a href="">PA2</a></li>
-           </ul>
+              {% for metric in object_list %}
+                <li role="presentation" >
+                    <a href="{% url "metrics-list" pk=metric.metric %}" data-toggle="tooltip"  data-placement="left" title="{{ metric.description }}" >{{ metric|upper }}</a>
+                </li>
+              {% endfor %}
+              <hr>
+
+              <!-- Add new Metric - to be implemented in F16 -->
+              <!--a class="btn btn-default" role="button">Add Metric</a-->
+
+          </ul>
         </div>
         <div class="col-xs-10">
-            <!-- Using a fixed dataset for now, later this could be a pull down menu for selecting different datasets -->
+            <!-- Change dataset/jenkins job - to be implemented in F16  -->
 
-            <h4 class="pull-right">
+            <!--h4 class="pull-right">
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">ci_hsc
                         <span class="caret"></span></button>
@@ -36,12 +38,13 @@
                         <li><a href="#">ci_cfht</a></li>
                     </ul>
                 </div>
-            </h4>
+            </h4-->
+            
             <ul class="nav nav-tabs">
-                <li role="presentation" {% if dashboard == "metric" %} class="active"{% endif %}><a href="">Builds</a></li>
+                <li role="presentation"><a href="">Builds</a></li>
             </ul>
             <div class="panel panel-default">
-                <div class="panel-heading">Metrics chart for recent builds:</div>
+                <div class="panel-heading">{{ selected_metric|upper }} chart for recent builds:</div>
                 <div class="panel-body plot">{{ metric_script|safe }}</div>
             </div>
 

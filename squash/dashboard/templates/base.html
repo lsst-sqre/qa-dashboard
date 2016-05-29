@@ -29,10 +29,10 @@
                             <a href="/">HOME</a>
                         </li>
                         <li {% if name == 'Dashboard' %}class="active"{% endif %}>
-                            <a href="1/dashboard">KPM CI</a>
+                            <a href="{% with object_list|first as first_metric %}{{ first_metric.metric }}{% endwith %}">KPM CI</a>
                         </li>
                         <li {% if name == 'Dashboard' %}class="active"{% endif %}>
-                            <a href="/api">API</a>
+                            <a href="dashboard/api">API</a>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">

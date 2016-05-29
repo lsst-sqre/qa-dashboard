@@ -14,4 +14,4 @@ DATABASES = {
     }
 }
 
-BOKEH_URL='http://localhost:5007'
+BOKEH_URL='http://localhost:5006'

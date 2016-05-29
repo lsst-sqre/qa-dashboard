@@ -20,8 +20,8 @@
             <p>SQUASH provides a minimum infrastructure for 
             testing the LSST stack using precursor datasets.
 
-            As a prototype SQUASH can be used and extended by the LSST
-            scientists preserving the code and knowledge developed during construction.
+            As a prototype SQUASH can be used and extended by the
+            scientists preserving the code and knowledge developed during LSST construction.
 
             </p>
         </div>
@@ -30,17 +30,16 @@
             <p>
             
             Start by looking at the metrics reported by KPM CI and
-            check the existing features, and help SQuaRE to extend
-            this system.
+            check the existing features.
 
             </p>
             <p>
                 <a class="btn btn-default"
-                    href="" role="button">
+                    href="{% with object_list|first as first_metric %}{{ first_metric.metric }}{% endwith %}" role="button">
                     Go >>
                 </a>
                  <a class="btn btn-default"
-                    href="" role="button">
+                    href="http://sqr-009.lsst.io/en/latest/" role="button">
                     Learn more
                 </a>
 </p>

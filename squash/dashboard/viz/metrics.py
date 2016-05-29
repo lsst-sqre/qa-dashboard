@@ -1,29 +1,22 @@
-from datetime import datetime
+from bokeh.models import ColumnDataSource, OpenURL, TapTool
 from bokeh.models import HoverTool
-from bokeh.models import ColumnDataSource
 from .defaults import init_time_series_plot, init_legend
+from ..models import get_time_series_data
 
 
-def update_metric_data(user, session):
-    pass
+def make_time_series_plot(metric):
 
-
-def make_metric_plot(user):
     legends = []
 
-    # Hardcoded values to test bokeh plot
-    metric = "PA1"
-    unit = "mag"
-    runtime = [datetime(2016, 5, 2), datetime(2016, 5, 3),
-               datetime(2016, 5, 4), datetime(2016, 5, 5)]
-    measurements = [1.5, 2.5, 2, 2.5, 2]
-    builds = [123, 124, 125, 126, 127]
+    data = get_time_series_data(metric)
 
     source = ColumnDataSource(
-            data=dict(x=runtime, y=measurements, desc=builds),
+            data=dict(x=data['dates'], y=data['values'],
+                      desc=data['ci_id'], ci_url=data['ci_url']),
         )
 
-    hover = HoverTool(tooltips=[("Build", "@desc"), (metric, "@y "+unit)])
+    hover = HoverTool(tooltips=[("Build ID", "@desc"),
+                                (data['metric'], "@y "+data['units'])])
 
     plot = init_time_series_plot(hover=hover)
 
@@ -34,8 +27,14 @@ def make_metric_plot(user):
 
     plot.circle(x='x', y='y', source=source, fill_color="white", size=16)
 
-    plot.yaxis.axis_label = metric + '(' + unit + ')'
+    taptool = plot.select(type=TapTool)
 
-    legends.append((metric, [line]))
+    taptool.callback = OpenURL(url="@ci_url")
+
+    plot.yaxis.axis_label = data['metric'] + '(' + data['units'] + ')'
+
+    legends.append((data['metric'], [line]))
+
     plot.add_layout(init_legend(legends=legends))
+
     return plot

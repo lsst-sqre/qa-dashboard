@@ -1,12 +1,13 @@
 """Tests for the dashboard API"""
 import os
 import requests
+import time
 
 """ Assume username and password for testing """
 TEST_USER = os.environ.get("USER")
 TEST_PASSWD = os.environ.get("USER")
 
-API_URL = "http://localhost:8000/api"
+API_URL = "http://localhost:8000/dashboard/api"
 
 
 def test_api_root():
@@ -60,16 +61,30 @@ def test_post_job():
          'git_branch': 'master',
          'build_version': 'b2000'}]
     measurements = [{"metric": "test1", "value": 3.0}]
-    job = {
-        "name": "ci_cfht",
-        "build": "1",
-        "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
-        "measurements": measurements,
-        "packages": packages,
-        "status": 0
-    }
+    jobs = [
+        {"ci_name": "ci_cfht",
+         "ci_id": "1",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
+         "measurements": measurements,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "ci_cfht",
+         "ci_id": "2",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/2/",
+         "measurements": measurements,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "ci_cfht",
+         "ci_id": "3",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
+         "measurements": measurements,
+         "packages": packages,
+         "status": 0}]
 
-    r = requests.post(api['jobs'], json=job,
-                      auth=(TEST_USER, TEST_PASSWD))
+    for job in jobs:
+        r = requests.post(api['jobs'], json=job, auth=(TEST_USER, TEST_PASSWD))
+        time.sleep(5)
 
     assert r.status_code == 201
+
+    r.close()

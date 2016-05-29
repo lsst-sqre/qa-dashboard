@@ -9,11 +9,10 @@ api_router.register(r'jobs', views.JobViewSet)
 api_router.register(r'metrics', views.MetricViewSet)
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/', include(api_router.urls)),
-    url(r'^api/token/', obtain_auth_token, name='api-token'),
-    url(r'^(?P<pk>[0-9]+)/dashboard/',
-        views.MetricDashboardView.as_view(),
-        name='metric-detail'),
+    url(r'^dashboard/admin', include(admin.site.urls)),
+    url(r'^dashboard/api/', include(api_router.urls)),
+    url(r'^dashboard/api/token/', obtain_auth_token, name='api-token'),
     url(r'^$', views.HomeView.as_view(), name='home'),
+    url(r'^(?P<pk>[a-zA-Z0-9]*$)', views.ListMetricsView.as_view(),
+        name='metrics-list'),
 ]

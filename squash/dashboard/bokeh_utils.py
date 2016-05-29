@@ -2,24 +2,32 @@ from contextlib import closing
 from bokeh.client import push_session, pull_session
 from bokeh.document import Document
 from bokeh.embed import autoload_server
-from .viz.metrics import update_metric_data
 from django.conf import settings
+from django.contrib.auth.models import User
 
 try:
     bokeh_url = settings.BOKEH_URL
 except AttributeError:
-    bokeh_url='default'
+    # if not specified use the default which is localhost:5006
+    bokeh_url = 'default'
 
-def get_bokeh_script(user, plot, suffix):
+
+def update_time_series_data(user, session):
+    # TODO: this can be used to update bokeh sessions in realtime
+    pass
+
+
+def get_bokeh_script(plot):
 
     from .models import UserSession
+
     document = Document()
     document.add_root(plot)
-    document.title = suffix
 
     with closing(push_session(document, url=bokeh_url)) as session:
         # Save the session id
-        UserSession.objects.create(user=user, bokehSessionId=session.id)
+        UserSession.objects.create(user=User.objects.get(),
+                                   bokehSessionId=session.id)
         # Get the script to pass into the template
         script = autoload_server(None, session_id=session.id, url=bokeh_url)
 
@@ -28,7 +36,8 @@ def get_bokeh_script(user, plot, suffix):
 
 def update_bokeh_sessions(user_sessions):
     for us in user_sessions:
-        with closing(pull_session(session_id=us.bokehSessionId, url=bokeh_url)) as session:
+        with closing(pull_session(session_id=us.bokehSessionId,
+                                  url=bokeh_url)) as session:
             if len(session.document.roots) == 0:
                 # In this case, the session_id was from a dead session and
                 # calling pull_session caused a new empty session to be
@@ -37,6 +46,4 @@ def update_bokeh_sessions(user_sessions):
                 # could just ask bokeh if session x is a session.
                 us.delete()
             else:
-                # based on the document title we could decide which data to
-                # update now we have just one
-                update_metric_data(user=us.user, session=session)
+                update_time_series_data(user=us.user, session=session)

@@ -9,12 +9,12 @@ class Job(models.Model):
     STATUS_OK = 0
     STATUS_FAILED = 1
 
-    name = models.CharField(max_length=32, blank=False,
-                            help_text='Name of Job')
-    build = models.CharField(max_length=16, blank=False,
+    ci_name = models.CharField(max_length=32, blank=False,
+                               help_text='Name of the Jenkins job')
+    ci_id = models.CharField(max_length=16, blank=False,
                              help_text='Jenkins job ID')
     date = models.DateTimeField(auto_now=True,
-                                help_text='Datetime when job was run')
+                                help_text='Datetime when job was registered')
     ci_url = models.URLField(null=False, help_text='Jenkins job URL')
     status = models.SmallIntegerField(default=STATUS_OK,
                                       help_text='Job status, 0=OK, 1=Failed')
@@ -46,7 +46,7 @@ class VersionedPackage(models.Model):
 
     def __str__(self):
         return json.dumps({'_class': 'VersionedPackage',
-                           'job.build': self.job.build,
+                           'job.ci_id': self.job.ci_id,
                            'name': self.name,
                            'git_url': self.git_url,
                            'git_commit': self.git_commit,
@@ -92,3 +92,22 @@ class Measurement(models.Model):
 class UserSession(models.Model):
     user = models.ForeignKey(User, null=False)
     bokehSessionId = models.CharField(max_length=64)
+
+
+def get_time_series_data(metric):
+
+    m = Measurement.objects.filter(metric=metric)
+
+    if m:
+        units = m[0].metric.units
+    else:
+        units = ""
+
+    return {
+            'metric': metric,
+            'dates': [x.job.date for x in m],
+            'values': [x.value for x in m],
+            'ci_id': [x.job.ci_id for x in m],
+            'units':  units,
+            'ci_url': [x.job.ci_url for x in m]
+           }
