@@ -3,6 +3,7 @@ from django.contrib import admin
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
 from . import views
+admin.site.site_header = 'SQUASH Admin'
 
 api_router = DefaultRouter()
 api_router.register(r'jobs', views.JobViewSet)
