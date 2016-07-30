@@ -23,7 +23,7 @@ class Job(models.Model):
         pass
 
     def __str__(self):
-        return self.build
+        return self.ci_id
 
 
 class VersionedPackage(models.Model):
