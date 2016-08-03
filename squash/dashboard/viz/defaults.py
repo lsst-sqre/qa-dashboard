@@ -1,7 +1,5 @@
-from math import pi
 from bokeh.plotting import Figure
 from bokeh.models import Legend
-from bokeh.models import DatetimeTickFormatter
 
 
 def init_time_series_plot(hover):
@@ -11,9 +9,10 @@ def init_time_series_plot(hover):
     plot = Figure(
         plot_height=400,
         plot_width=900,
-        responsive=True,
+        sizing_mode="scale_width",
+        toolbar_location="above",
         tools="xpan,xwheel_zoom,xbox_zoom,reset,tap",
-        x_axis_type='datetime',
+        x_axis_type="datetime",
         min_border_top=0,
         min_border_right=10,
         min_border_bottom=50,
@@ -24,13 +23,7 @@ def init_time_series_plot(hover):
     plot.x_range.follow = "end"
     plot.x_range.range_padding = 0
     plot.xaxis.axis_label = "Date"
-    plot.xaxis.major_label_orientation = pi/4
-    plot.xaxis.formatter = DatetimeTickFormatter(formats=dict(
-        hours=["%d %B"],
-        days=["%d %B"],
-        months=["%d %B"],
-        years=["%d %B"],
-    ))
+
     return plot
 
 
