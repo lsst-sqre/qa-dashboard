@@ -5,7 +5,6 @@
 {% block content %}
 
 
-
 <div class="jumbotron">
     <div class="container">
         <h1>SQUASH</h1>
@@ -22,31 +21,26 @@
 
             As a prototype SQUASH can be used and extended by the
             scientists preserving the code and knowledge developed during LSST construction.
-
             </p>
         </div>
         <div class="col-md-6">
             <h2>How to Use</h2>
             <p>
-            
             Start by looking at the metrics reported by KPM CI and
             check the existing features.
-
             </p>
             <p>
                 <a class="btn btn-default"
-                    href="{% with object_list|first as first_metric %}{{ first_metric.metric }}{% endwith %}" role="button">
+                    href="dashboard" role="button">
                     Go >>
                 </a>
-                 <a class="btn btn-default"
+                <a class="btn btn-default"
                     href="http://sqr-009.lsst.io/en/latest/" role="button">
                     Learn more
                 </a>
-</p>
+            </p>
         </div>
     </div>
 </div>
-
-
 
 {% endblock %}
