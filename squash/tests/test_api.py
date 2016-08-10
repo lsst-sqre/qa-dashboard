@@ -17,14 +17,14 @@ def test_api_root():
 
 
 def test_auth():
-    """Attempt to access a resource without authentication"""
+    """API endpoints are read only, get must work without authentication"""
 
     r = requests.get(API_URL)
     api = r.json()
 
     for endpoint in api:
         r = requests.get(api[endpoint])
-        assert r.status_code == 401
+        assert r.status_code == 200
 
 
 def test_post_metric():
@@ -60,24 +60,43 @@ def test_post_job():
          'git_commit': 'fc355a99abe3425003b0e5fbe1e13a39644b1e95',
          'git_branch': 'master',
          'build_version': 'b2000'}]
-    measurements = [{"metric": "test1", "value": 3.0}]
+    measurements1 = [{"metric": "AM1", "value": 1.0},
+                     {"metric": "AM2", "value": 2.0},
+                     {"metric": "PA1", "value": 0.0}]
+    measurements2 = [{"metric": "AM1", "value": 2.0},
+                     {"metric": "AM2", "value": 3.0},
+                     {"metric": "PA1", "value": 1.0}]
     jobs = [
-        {"ci_name": "ci_cfht",
+        {"ci_name": "validate_drp",
          "ci_id": "1",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
-         "measurements": measurements,
+         "measurements": measurements1,
          "packages": packages,
          "status": 0},
-        {"ci_name": "ci_cfht",
+        {"ci_name": "validate_drp",
          "ci_id": "2",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/2/",
-         "measurements": measurements,
+         "measurements": measurements1,
          "packages": packages,
          "status": 0},
-        {"ci_name": "ci_cfht",
+        {"ci_name": "validate_drp",
          "ci_id": "3",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
-         "measurements": measurements,
+         "measurements": measurements2,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "validate_drp",
+         "ci_id": "4",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/4/",
+         "measurements": measurements2,
          "packages": packages,
          "status": 0}]
 
