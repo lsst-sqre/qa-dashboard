@@ -3,9 +3,11 @@ import os
 import requests
 import time
 
-""" Assume username and password for testing """
+""" Username and password for testing, must be the same used 
+to set up the database. See run.sh """
+
 TEST_USER = os.environ.get("USER")
-TEST_PASSWD = os.environ.get("USER")
+TEST_PASSWD = os.environ.get("TEST_PASSWD")
 
 API_URL = "http://localhost:8000/dashboard/api"
 
