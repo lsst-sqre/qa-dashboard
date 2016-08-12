@@ -120,7 +120,23 @@ def test_post_job():
          "measurements": measurements3,
          "packages": packages,
          "status": 0},
-    ]
+        {"ci_name": "validate_drp",
+         "ci_id": "4",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
+         "measurements": [],
+         "packages": packages,
+         "status": 0},
+         {"ci_name": "validate_drp",
+         "ci_id": "5",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
+         "measurements": [],
+         "packages": packages,
+         "status": 0},
+     ]
 
 
     for job in jobs:
