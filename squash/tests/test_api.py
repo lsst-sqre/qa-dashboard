@@ -3,9 +3,11 @@ import os
 import requests
 import time
 
-""" Assume username and password for testing """
+""" Username and password for testing, must be the same used 
+to set up the database. See run.sh """
+
 TEST_USER = os.environ.get("USER")
-TEST_PASSWD = os.environ.get("USER")
+TEST_PASSWD = os.environ.get("TEST_PASSWD")
 
 API_URL = "http://localhost:8000/dashboard/api"
 
@@ -17,14 +19,14 @@ def test_api_root():
 
 
 def test_auth():
-    """Attempt to access a resource without authentication"""
+    """API endpoints are read only, get must work without authentication"""
 
     r = requests.get(API_URL)
     api = r.json()
 
     for endpoint in api:
         r = requests.get(api[endpoint])
-        assert r.status_code == 401
+        assert r.status_code == 200
 
 
 def test_post_metric():
@@ -60,26 +62,66 @@ def test_post_job():
          'git_commit': 'fc355a99abe3425003b0e5fbe1e13a39644b1e95',
          'git_branch': 'master',
          'build_version': 'b2000'}]
-    measurements = [{"metric": "test1", "value": 3.0}]
+    measurements1 = [{"metric": "AM1", "value": 1.0},
+                     {"metric": "AM2", "value": 5.0},
+                     {"metric": "PA1", "value": 7.0}]
+    measurements2 = [{"metric": "AM1", "value": 2.0},
+                     {"metric": "AM2", "value": 10.0},
+                     {"metric": "PA1", "value": 3.0}]
+    measurements3 = [{"metric": "AM1", "value": 1.0},
+                     {"metric": "AM2", "value": 8.0},
+                     {"metric": "PA1", "value": 5.0}]
     jobs = [
-        {"ci_name": "ci_cfht",
+        {"ci_name": "validate_drp",
          "ci_id": "1",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
-         "measurements": measurements,
+         "measurements": measurements1,
          "packages": packages,
          "status": 0},
-        {"ci_name": "ci_cfht",
+        {"ci_name": "validate_drp",
          "ci_id": "2",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/2/",
-         "measurements": measurements,
+         "measurements": measurements2,
          "packages": packages,
          "status": 0},
-        {"ci_name": "ci_cfht",
+        {"ci_name": "validate_drp",
          "ci_id": "3",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
-         "measurements": measurements,
+         "measurements": measurements3,
          "packages": packages,
-         "status": 0}]
+         "status": 0},
+         {"ci_name": "validate_drp",
+         "ci_id": "1",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
+         "measurements": measurements2,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "validate_drp",
+         "ci_id": "2",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/2/",
+         "measurements": measurements1,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "validate_drp",
+         "ci_id": "3",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
+         "measurements": measurements3,
+         "packages": packages,
+         "status": 0},
+    ]
+
 
     for job in jobs:
         r = requests.post(api['jobs'], json=job, auth=(TEST_USER, TEST_PASSWD))

@@ -29,7 +29,7 @@
                             <a href="/">HOME</a>
                         </li>
                         <li {% if name == 'Dashboard' %}class="active"{% endif %}>
-                            <a href="{% with object_list|first as first_metric %}{{ first_metric.metric }}{% endwith %}">KPM CI</a>
+                            <a href="dashboard">KPMs</a>
                         </li>
                         <li {% if name == 'Dashboard' %}class="active"{% endif %}>
                             <a href="dashboard/api">API</a>
@@ -51,7 +51,6 @@
                 <p>&copy; Copyright {% now 'Y' %}, AURA/LSST</p>
             </div>
         </footer>
-        <script src="{% static 'js/jquery.min.js' %}"></script>
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
     </body>
 </html>

@@ -20,7 +20,6 @@ class MetricSerializer(serializers.ModelSerializer):
                             request=request),
          }
 
-
 class MeasurementSerializer(serializers.ModelSerializer):
     """Serializer for `models.Measurement` objects.
 
@@ -56,7 +55,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = ('ci_name', 'ci_id', 'date',
+        fields = ('ci_id', 'ci_name', 'ci_dataset', 'ci_label', 'date',
                   'ci_url', 'status', 'measurements', 'packages',
                   'links')
 

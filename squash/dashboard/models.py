@@ -1,7 +1,6 @@
 import json
 from django.db import models
 from django.contrib.auth.models import User
-from .bokeh_utils import update_bokeh_sessions
 
 
 class Job(models.Model):
@@ -9,10 +8,15 @@ class Job(models.Model):
     STATUS_OK = 0
     STATUS_FAILED = 1
 
-    ci_name = models.CharField(max_length=32, blank=False,
-                               help_text='Name of the Jenkins job')
     ci_id = models.CharField(max_length=16, blank=False,
                              help_text='Jenkins job ID')
+    ci_name = models.CharField(max_length=32, blank=False,
+                               help_text='Name of the Jenkins project,'
+                                         'e.g. validate_drp')
+    ci_dataset = models.CharField(max_length=16, blank=False,
+                                  help_text='Name of the dataset, e.g cfht')
+    ci_label = models.CharField(max_length=16, blank=False,
+                                help_text='Name of the platform, eg. centos-7')
     date = models.DateTimeField(auto_now=True,
                                 help_text='Datetime when job was registered')
     ci_url = models.URLField(null=False, help_text='Jenkins job URL')
@@ -79,35 +83,7 @@ class Measurement(models.Model):
     def __float__(self):
         return self.value
 
-    def save(self, *args, **kwargs):
-        super(Measurement, self).save(*args, **kwargs)
-        # When a new measurement is saved, update all the data
-        # for the bokeh sessions.
-        # Improvements:
-        # - Only update metrics affected by this data
-        # (only get affected Sessions)
-        update_bokeh_sessions(UserSession.objects.all())
-
 
 class UserSession(models.Model):
     user = models.ForeignKey(User, null=False)
     bokehSessionId = models.CharField(max_length=64)
-
-
-def get_time_series_data(metric):
-
-    m = Measurement.objects.filter(metric=metric)
-
-    if m:
-        units = m[0].metric.units
-    else:
-        units = ""
-
-    return {
-            'metric': metric,
-            'dates': [x.job.date for x in m],
-            'values': [x.value for x in m],
-            'ci_id': [x.job.ci_id for x in m],
-            'units':  units,
-            'ci_url': [x.job.ci_url for x in m]
-           }
