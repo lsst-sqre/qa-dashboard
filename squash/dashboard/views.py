@@ -5,6 +5,13 @@ from .forms import JobFilter
 from .models import Job, Metric
 from .serializers import JobSerializer, MetricSerializer
 from bokeh.embed import autoload_server
+from django.conf import settings
+
+try:
+    bokeh_url = settings.BOKEH_URL
+except AttributeError:
+    # if not specified use the default which is localhost:5006
+    bokeh_url = 'default'
 
 
 class DefaultsMixin(object):
@@ -71,6 +78,6 @@ class MetricsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MetricsView, self).get_context_data(**kwargs)
-        bokeh_script = autoload_server(None, app_path="/metrics")
+        bokeh_script = autoload_server(None, app_path="/metrics", url=bokeh_url)
         context.update(bokeh_script=bokeh_script)
         return context
