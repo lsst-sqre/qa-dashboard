@@ -11,8 +11,8 @@ class Job(models.Model):
     ci_id = models.CharField(max_length=16, blank=False,
                              help_text='Jenkins job ID')
     ci_name = models.CharField(max_length=32, blank=False,
-                               help_text='Name of the Jenkins project,\
-                                e.g. validate_drp')
+                               help_text='Name of the Jenkins project,'
+                                         'e.g. validate_drp')
     ci_dataset = models.CharField(max_length=16, blank=False,
                                   help_text='Name of the dataset, e.g cfht')
     ci_label = models.CharField(max_length=16, blank=False,

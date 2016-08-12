@@ -3,8 +3,8 @@ import requests
 from datetime import datetime
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool
-from bokeh.models.widgets import Select, RadioButtonGroup
-from bokeh.layouts import column, widgetbox
+from bokeh.models.widgets import Select
+from bokeh.layouts import row, widgetbox
 from defaults import init_time_series_plot, init_legend
 
 SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
@@ -24,8 +24,8 @@ class Metrics(object):
         self.create_layout()
 
     def create_layout(self):
-        """the app has a dataset select widget,
-        radio buttons to select metrics and a plot"""
+        """the app has select widgets for datasets,
+         metrics and a plot"""
 
         self.get_datasets()
 
@@ -38,10 +38,10 @@ class Metrics(object):
         self.get_metrics()
 
         # metric widget
-        metric_select = RadioButtonGroup(name="Metrics:",
-                                         labels=self.metrics, active=0)
+        metric_select = Select(title="Metric:", value=self.selected_metric,
+                               options=self.metrics, width=100)
 
-        metric_select.on_change("active", self.on_metric_change)
+        metric_select.on_change("value", self.on_metric_change)
 
         # measurements for the selected dataset has values
         # for all the metrics, we keep them all and filter
@@ -73,17 +73,14 @@ class Metrics(object):
 
         # set axis labels, legend and compose the final layout
         self.plot.yaxis.axis_label = self.selected_metric +\
-            '(' + self.units[self.selected_metric] + ')'
+            ' (' + self.units[self.selected_metric] + ')'
 
         # TODO: add a checkbox to control this
 
-        self.draw_specs()
+        self.draw_spec_annotations()
 
-        self.layout = column(
-            widgetbox(dataset_select),
-            widgetbox(metric_select),
-            self.plot
-        )
+        self.layout = row(widgetbox(dataset_select,
+                                    metric_select, width=150), self.plot)
 
     def get_datasets(self):
         self.datasets = requests.get(self.api['datasets']).json()
@@ -120,7 +117,7 @@ class Metrics(object):
 
     def on_metric_change(self, attr, old, new):
 
-        self.selected_metric = self.metrics[new]
+        self.selected_metric = new
 
         self.plot.yaxis.axis_label = self.selected_metric\
             + '(' + self.units[self.selected_metric] + ')'
@@ -176,22 +173,20 @@ class Metrics(object):
                                 units=units, minimum=minimum, design=design,
                                 stretch=stretch,)
 
-    def draw_specs(self):
+    def draw_spec_annotations(self):
 
-        minimum = self.plot.line(x='x', y='minimum',
-                                 source=self.source,
+        minimum = self.plot.line(x='x', y='minimum', source=self.source,
                                  line_width=1, color='red',
                                  line_dash='dotted',)
         self.legends.append(("Minimum spec", [minimum]))
 
-        design = self.plot.line(x='x', y='design',
-                                source=self.source,
+        design = self.plot.line(x='x', y='design', source=self.source,
                                 line_width=1, color='blue',
                                 line_dash='dotted',)
+
         self.legends.append(("Design spec", [design]))
 
-        stretch = self.plot.line(x='x', y='stretch',
-                                 source=self.source,
+        stretch = self.plot.line(x='x', y='stretch', source=self.source,
                                  line_width=1, color='green',
                                  line_dash='dotted',)
         self.legends.append(("Stretch goal", [stretch]))

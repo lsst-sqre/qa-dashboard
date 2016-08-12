@@ -63,11 +63,14 @@ def test_post_job():
          'git_branch': 'master',
          'build_version': 'b2000'}]
     measurements1 = [{"metric": "AM1", "value": 1.0},
-                     {"metric": "AM2", "value": 2.0},
-                     {"metric": "PA1", "value": 0.0}]
+                     {"metric": "AM2", "value": 5.0},
+                     {"metric": "PA1", "value": 7.0}]
     measurements2 = [{"metric": "AM1", "value": 2.0},
-                     {"metric": "AM2", "value": 3.0},
-                     {"metric": "PA1", "value": 1.0}]
+                     {"metric": "AM2", "value": 10.0},
+                     {"metric": "PA1", "value": 3.0}]
+    measurements3 = [{"metric": "AM1", "value": 1.0},
+                     {"metric": "AM2", "value": 8.0},
+                     {"metric": "PA1", "value": 5.0}]
     jobs = [
         {"ci_name": "validate_drp",
          "ci_id": "1",
@@ -82,6 +85,30 @@ def test_post_job():
          "ci_dataset": "cfht",
          "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/2/",
+         "measurements": measurements2,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "validate_drp",
+         "ci_id": "3",
+         "ci_dataset": "cfht",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
+         "measurements": measurements3,
+         "packages": packages,
+         "status": 0},
+         {"ci_name": "validate_drp",
+         "ci_id": "1",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/1/",
+         "measurements": measurements2,
+         "packages": packages,
+         "status": 0},
+        {"ci_name": "validate_drp",
+         "ci_id": "2",
+         "ci_dataset": "decam",
+         "ci_label": "centos-7",
+         "ci_url": "https://ci.lsst.codes/job/ci_cfht/2/",
          "measurements": measurements1,
          "packages": packages,
          "status": 0},
@@ -90,17 +117,11 @@ def test_post_job():
          "ci_dataset": "decam",
          "ci_label": "centos-7",
          "ci_url": "https://ci.lsst.codes/job/ci_cfht/3/",
-         "measurements": measurements2,
+         "measurements": measurements3,
          "packages": packages,
          "status": 0},
-        {"ci_name": "validate_drp",
-         "ci_id": "4",
-         "ci_dataset": "decam",
-         "ci_label": "centos-7",
-         "ci_url": "https://ci.lsst.codes/job/ci_cfht/4/",
-         "measurements": measurements2,
-         "packages": packages,
-         "status": 0}]
+    ]
+
 
     for job in jobs:
         r = requests.post(api['jobs'], json=job, auth=(TEST_USER, TEST_PASSWD))
