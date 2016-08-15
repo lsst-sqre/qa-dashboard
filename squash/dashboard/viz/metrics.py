@@ -47,7 +47,9 @@ class Metrics(object):
         # for all the metrics, we keep them all and filter
         # by the selected metric
 
-        self.get_measurements()
+        # handle empty results
+        if self.selected_dataset and self.selected_metric:
+            self.get_measurements()
 
         # plot with hover and tap tool
 
@@ -84,7 +86,11 @@ class Metrics(object):
 
     def get_datasets(self):
         self.datasets = requests.get(self.api['datasets']).json()
-        self.selected_dataset = self.datasets[0]
+
+        if self.datasets:
+            self.selected_dataset = self.datasets[0]
+        else:
+            self.selected_dataset = None
 
     def on_dataset_change(self, attr, old, new):
         self.selected_dataset = new
@@ -100,7 +106,7 @@ class Metrics(object):
 
         self.metrics = [x['metric'] for x in r['results']]
 
-        # in case metrics is and empty list
+        # handle empty results
         if self.metrics:
 
             self.units = dict(zip(self.metrics,
@@ -111,9 +117,10 @@ class Metrics(object):
                                    [x['design'] for x in r['results']]))
             self.stretch = dict(zip(self.metrics,
                                     [x['stretch'] for x in r['results']]))
+            self.selected_metric = self.metrics[0]
 
-        # default metric is the first one
-        self.selected_metric = self.metrics[0]
+        else:
+            self.selected_metric = None
 
     def on_metric_change(self, attr, old, new):
 
@@ -140,24 +147,48 @@ class Metrics(object):
     def get_measurements(self):
 
         # e.g. http://localhost:8000/dashboard/api/jobs/?ci_dataset=cfht
-        self.jobs = requests.get(self.api['jobs'] + '?ci_dataset=' +
-                                 self.selected_dataset).json()['results']
+        r = requests.get(self.api['jobs'],
+                         params={'ci_dataset': self.selected_dataset}).json()
 
-        self.ci_id = [job['ci_id'] for job in self.jobs]
+        # results are paginated, walk through each page
+
+        # TODO: figure out how to retrieve number of pages in drf
+        count = r['count']
+
+        page_size = len(r['results'])
+
+        jobs = []
+
+        if page_size > 0:
+
+            num_pages = int(count/page_size) + (count % page_size > 0)
+
+            for page in range(1, num_pages + 1):
+                jobs.extend(requests.get(
+                    self.api['jobs'],
+                    params={'ci_dataset': self.selected_dataset,
+                            'page': page}).json()['results'])
+
+        # filter out failing jobs, this should be done by looking
+        # the job status # but for now it is useless
+
+        jobs = [job for job in jobs if job['measurements']]
+
+        self.ci_id = [job['ci_id'] for job in jobs]
 
         # 2016-08-10T05:22:37.700146Z
         self.dates = [datetime.strptime(job['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
-                      for job in self.jobs]
+                      for job in jobs]
 
         # create a flat list with all measurements
         # [ {"metric" : "AM1", "value" : 3.0}, ... ]
         self.measurements = []
 
-        for job in self.jobs:
+        for job in jobs:
             for sublist in job['measurements']:
                 self.measurements.append(sublist)
 
-        self.ci_url = [job['ci_url'] for job in self.jobs]
+        self.ci_url = [job['ci_url'] for job in jobs]
 
         size = len(self.dates)
         units = [self.units[self.selected_metric]] * size

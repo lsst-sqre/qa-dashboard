@@ -29,9 +29,7 @@ class DefaultsMixin(object):
         permissions.IsAuthenticatedOrReadOnly,
     )
 
-    paginate_by = 25
-    paginate_by_param = 'page_size'
-    max_paginate_by = 100
+    paginate_by = 100
     # list of available filter_backends, will enable these for all ViewSets
     filter_backends = (
         filters.DjangoFilterBackend,
