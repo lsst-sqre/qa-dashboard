@@ -2,7 +2,7 @@ import os
 import requests
 from datetime import datetime
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool
+from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool, Span, Label, Arrow, NormalHead
 from bokeh.models.widgets import Select
 from bokeh.layouts import row, widgetbox
 from defaults import init_time_series_plot, init_legend
@@ -18,9 +18,7 @@ class Metrics(object):
 
         self.api = requests.get(SQUASH_API_URL).json()
         self.source = ColumnDataSource(data={'x': [], 'y': [], 'desc': [],
-                                             'ci_url': [], 'units': [],
-                                             'minimum': [], 'design': [],
-                                             'stretch': []})
+                                             'ci_url': [], 'units': []})
         self.create_layout()
 
     def create_layout(self):
@@ -111,13 +109,11 @@ class Metrics(object):
 
             self.units = dict(zip(self.metrics,
                                   [x['units'] for x in r['results']]))
-            self.minimum = dict(zip(self.metrics,
-                                    [x['minimum'] for x in r['results']]))
-            self.design = dict(zip(self.metrics,
-                                   [x['design'] for x in r['results']]))
-            self.stretch = dict(zip(self.metrics,
-                                    [x['stretch'] for x in r['results']]))
+
+            # select first metric by default
             self.selected_metric = self.metrics[0]
+
+            self.minimum = dict(zip(self.metrics, [x['minimum'] for x in r['results']]))
 
         else:
             self.selected_metric = None
@@ -132,17 +128,16 @@ class Metrics(object):
         # need these values to draw the spec thresholds
         size = len(self.dates)
         units = [self.units[self.selected_metric]] * size
-        minimum = [self.minimum[self.selected_metric]] * size
-        design = [self.design[self.selected_metric]] * size
-        stretch = [self.stretch[self.selected_metric]] * size
 
         # update the data source and the plot will automatically update
         self.source.data = dict(x=self.dates,
                                 y=[m['value'] for m in self.measurements if
                                    m['metric'] == self.selected_metric],
                                 desc=self.ci_id, ci_url=self.ci_url,
-                                units=units, minimum=minimum, design=design,
-                                stretch=stretch, )
+                                units=units, )
+
+        self.draw_spec_annotations()
+
 
     def get_measurements(self):
 
@@ -169,14 +164,18 @@ class Metrics(object):
                     params={'ci_dataset': self.selected_dataset,
                             'page': page}).json()['results'])
 
-        # filter out failing jobs, this should be done by looking
-        # the job status # but for now it is useless
+        # filter out failed jobs, i.e jobs that have
+        # incomplete measurements. This should be done by looking
+        # at the job status, but for now it is useless
 
-        jobs = [job for job in jobs if job['measurements']]
+        jobs = [job for job in jobs
+                if len(job['measurements']) == len(self.metrics)]
 
-        self.ci_id = [job['ci_id'] for job in jobs]
+        self.ci_id = [int(job['ci_id']) for job in jobs]
 
         # 2016-08-10T05:22:37.700146Z
+        # DM-7517 job api return is sorted by date
+
         self.dates = [datetime.strptime(job['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
                       for job in jobs]
 
@@ -192,37 +191,34 @@ class Metrics(object):
 
         size = len(self.dates)
         units = [self.units[self.selected_metric]] * size
-        minimum = [self.minimum[self.selected_metric]] * size
-        design = [self.design[self.selected_metric]] * size
-        stretch = [self.stretch[self.selected_metric]] * size
 
         # measurements are filtered by metric
         self.source.data = dict(x=self.dates,
                                 y=[m['value'] for m in self.measurements
                                    if m['metric'] == self.selected_metric],
                                 desc=self.ci_id, ci_url=self.ci_url,
-                                units=units, minimum=minimum, design=design,
-                                stretch=stretch,)
+                                units=units, )
 
     def draw_spec_annotations(self):
 
-        minimum = self.plot.line(x='x', y='minimum', source=self.source,
-                                 line_width=1, color='red',
+
+        minimum = Span( location=self.minimum[self.selected_metric], dimension='width',
+                                 line_width=1, line_color='red',
                                  line_dash='dotted',)
-        self.legends.append(("Minimum spec", [minimum]))
 
-        design = self.plot.line(x='x', y='design', source=self.source,
-                                line_width=1, color='blue',
-                                line_dash='dotted',)
+        self.plot.add_layout(minimum)
 
-        self.legends.append(("Design spec", [design]))
+        minimum_label = Label(x=70, y=self.minimum[self.selected_metric], x_units='screen', y_units='data',
+                 text="Minimum", text_color='red', text_font_size='11pt', text_font_style='normal', render_mode='css')
 
-        stretch = self.plot.line(x='x', y='stretch', source=self.source,
-                                 line_width=1, color='green',
-                                 line_dash='dotted',)
-        self.legends.append(("Stretch goal", [stretch]))
+        self.plot.add_layout(minimum_label)
 
-        self.plot.add_layout(init_legend(legends=self.legends))
+        down_arrow = Label(x=90, y=self.minimum[self.selected_metric], x_units='screen', y_units='data',
+                           text="&darr;", text_color='red', text_font_size='24pt', text_font_style='normal',
+                           render_mode='css', y_offset = -35)
+
+        self.plot.add_layout(down_arrow)
+
 
 
 curdoc().add_root(Metrics().layout)
