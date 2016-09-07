@@ -41,11 +41,11 @@ class DefaultsMixin(object):
 class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating jobs"""
 
-    queryset = Job.objects.order_by('ci_id')
+    queryset = Job.objects.order_by('date')
     serializer_class = JobSerializer
     filter_class = JobFilter
     search_fields = ('ci_id',)
-    ordering_fields = ('ci_id',)
+    ordering_fields = ('date',)
 
 
 class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):
