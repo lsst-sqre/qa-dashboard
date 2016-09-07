@@ -77,7 +77,10 @@ class Metrics(object):
 
         # TODO: add a checkbox to control this
 
-        self.draw_spec_annotations()
+        self.annotations = {}
+
+        for t in self.thresholds:
+            self.annotations[t] = self.draw_annotations(self.thresholds[t])
 
         self.layout = row(widgetbox(dataset_select,
                                     metric_select, width=150), self.plot)
@@ -113,19 +116,42 @@ class Metrics(object):
             # select first metric by default
             self.selected_metric = self.metrics[0]
 
-            self.minimum = dict(zip(self.metrics, [x['minimum'] for x in r['results']]))
+            # configure thresholds for each metric
+
+            self.thresholds = {}
+
+            minimum = dict(zip(self.metrics, [x['minimum'] for x in r['results']]))
+            self.thresholds['minimum'] = {'values': minimum,
+                                          'text': 'Minimum Specification',
+                                          'color': 'red'}
+
+            design = dict(zip(self.metrics, [x['design'] for x in r['results']]))
+            self.thresholds['design'] = {'values': design,
+                                        'text': 'Design Specification',
+                                        'color': 'blue'}
+
+            stretch = dict(zip(self.metrics, [x['stretch'] for x in r['results']]))
+            self.thresholds['stretch'] = {'values': stretch,
+                                         'text': 'Strecth goal',
+                                         'color':'green' }
 
         else:
             self.selected_metric = None
 
     def on_metric_change(self, attr, old, new):
 
+        # Update plot threshold annotations and axis labels
+
+        for t in self.annotations:
+            self.annotations[t]['span'].location = self.thresholds[t]['values'][new]
+            self.annotations[t]['label'].y = self.thresholds[t]['values'][new]
+            self.annotations[t]['arrow'].y = self.thresholds[t]['values'][new]
+
         self.selected_metric = new
 
         self.plot.yaxis.axis_label = self.selected_metric\
             + '(' + self.units[self.selected_metric] + ')'
 
-        # need these values to draw the spec thresholds
         size = len(self.dates)
         units = [self.units[self.selected_metric]] * size
 
@@ -135,8 +161,6 @@ class Metrics(object):
                                    m['metric'] == self.selected_metric],
                                 desc=self.ci_id, ci_url=self.ci_url,
                                 units=units, )
-
-        self.draw_spec_annotations()
 
 
     def get_measurements(self):
@@ -199,26 +223,33 @@ class Metrics(object):
                                 desc=self.ci_id, ci_url=self.ci_url,
                                 units=units, )
 
-    def draw_spec_annotations(self):
+    def draw_annotations(self, threshold):
 
+        location = threshold['values'][self.selected_metric]
+        color = threshold['color']
 
-        minimum = Span( location=self.minimum[self.selected_metric], dimension='width',
-                                 line_width=1, line_color='red',
-                                 line_dash='dotted',)
+        span = Span(location=location, dimension='width',
+                    line_width=1, line_color=color, line_dash='dotted',)
 
-        self.plot.add_layout(minimum)
+        self.plot.add_layout(span)
 
-        minimum_label = Label(x=70, y=self.minimum[self.selected_metric], x_units='screen', y_units='data',
-                 text="Minimum", text_color='red', text_font_size='11pt', text_font_style='normal', render_mode='css')
+        text = threshold['text']
+        label = Label(x=70, y=location, x_units='screen',
+                      y_units='data', text=text, text_color=color,
+                      text_font_size='11pt', text_font_style='normal',
+                      render_mode='css')
 
-        self.plot.add_layout(minimum_label)
+        self.plot.add_layout(label)
 
-        down_arrow = Label(x=90, y=self.minimum[self.selected_metric], x_units='screen', y_units='data',
-                           text="&darr;", text_color='red', text_font_size='24pt', text_font_style='normal',
+        arrow = Label(x=100, y=location, x_units='screen',
+                           y_units='data', text="&darr;",
+                           text_color=color, text_font_size='24pt',
+                           text_font_style='normal',
                            render_mode='css', y_offset = -35)
 
-        self.plot.add_layout(down_arrow)
+        self.plot.add_layout(arrow)
 
+        return {'span': span, 'label': label, 'arrow': arrow}
 
 
 curdoc().add_root(Metrics().layout)
