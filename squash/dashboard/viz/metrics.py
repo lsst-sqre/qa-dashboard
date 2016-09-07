@@ -2,7 +2,8 @@ import os
 import requests
 from datetime import datetime
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool, Span, Label, Arrow, NormalHead
+from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
+                         Span, Label
 from bokeh.models.widgets import Select
 from bokeh.layouts import row, widgetbox
 from defaults import init_time_series_plot, init_legend
@@ -120,20 +121,23 @@ class Metrics(object):
 
             self.thresholds = {}
 
-            minimum = dict(zip(self.metrics, [x['minimum'] for x in r['results']]))
+            minimum = dict(zip(self.metrics,
+                               [x['minimum'] for x in r['results']]))
             self.thresholds['minimum'] = {'values': minimum,
                                           'text': 'Minimum Specification',
                                           'color': 'red'}
 
-            design = dict(zip(self.metrics, [x['design'] for x in r['results']]))
+            design = dict(zip(self.metrics,
+                              [x['design'] for x in r['results']]))
             self.thresholds['design'] = {'values': design,
-                                        'text': 'Design Specification',
-                                        'color': 'blue'}
+                                         'text': 'Design Specification',
+                                         'color': 'blue'}
 
-            stretch = dict(zip(self.metrics, [x['stretch'] for x in r['results']]))
+            stretch = dict(zip(self.metrics,
+                               [x['stretch'] for x in r['results']]))
             self.thresholds['stretch'] = {'values': stretch,
-                                         'text': 'Strecth goal',
-                                         'color':'green' }
+                                          'text': 'Strecth goal',
+                                          'color': 'green'}
 
         else:
             self.selected_metric = None
@@ -143,7 +147,8 @@ class Metrics(object):
         # Update plot threshold annotations and axis labels
 
         for t in self.annotations:
-            self.annotations[t]['span'].location = self.thresholds[t]['values'][new]
+            self.annotations[t]['span'].location = \
+                self.thresholds[t]['values'][new]
             self.annotations[t]['label'].y = self.thresholds[t]['values'][new]
             self.annotations[t]['arrow'].y = self.thresholds[t]['values'][new]
 
@@ -161,7 +166,6 @@ class Metrics(object):
                                    m['metric'] == self.selected_metric],
                                 desc=self.ci_id, ci_url=self.ci_url,
                                 units=units, )
-
 
     def get_measurements(self):
 
@@ -242,10 +246,10 @@ class Metrics(object):
         self.plot.add_layout(label)
 
         arrow = Label(x=100, y=location, x_units='screen',
-                           y_units='data', text="&darr;",
-                           text_color=color, text_font_size='24pt',
-                           text_font_style='normal',
-                           render_mode='css', y_offset = -35)
+                      y_units='data', text="&darr;",
+                      text_color=color, text_font_size='24pt',
+                      text_font_style='normal',
+                      render_mode='css', y_offset=-35)
 
         self.plot.add_layout(arrow)
 
