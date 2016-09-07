@@ -136,7 +136,7 @@ class Metrics(object):
             stretch = dict(zip(self.metrics,
                                [x['stretch'] for x in r['results']]))
             self.thresholds['stretch'] = {'values': stretch,
-                                          'text': 'Strecth goal',
+                                          'text': 'Strecth Goal',
                                           'color': 'green'}
 
         else:
