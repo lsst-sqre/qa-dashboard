@@ -2,7 +2,8 @@ import os
 import requests
 from datetime import datetime
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool
+from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
+                         Span, Label
 from bokeh.models.widgets import Select
 from bokeh.layouts import row, widgetbox
 from defaults import init_time_series_plot, init_legend
@@ -18,9 +19,7 @@ class Metrics(object):
 
         self.api = requests.get(SQUASH_API_URL).json()
         self.source = ColumnDataSource(data={'x': [], 'y': [], 'desc': [],
-                                             'ci_url': [], 'units': [],
-                                             'minimum': [], 'design': [],
-                                             'stretch': []})
+                                             'ci_url': [], 'units': []})
         self.create_layout()
 
     def create_layout(self):
@@ -79,7 +78,10 @@ class Metrics(object):
 
         # TODO: add a checkbox to control this
 
-        self.draw_spec_annotations()
+        self.annotations = {}
+
+        for t in self.thresholds:
+            self.annotations[t] = self.draw_annotations(self.thresholds[t])
 
         self.layout = row(widgetbox(dataset_select,
                                     metric_select, width=150), self.plot)
@@ -111,38 +113,59 @@ class Metrics(object):
 
             self.units = dict(zip(self.metrics,
                                   [x['units'] for x in r['results']]))
-            self.minimum = dict(zip(self.metrics,
-                                    [x['minimum'] for x in r['results']]))
-            self.design = dict(zip(self.metrics,
-                                   [x['design'] for x in r['results']]))
-            self.stretch = dict(zip(self.metrics,
-                                    [x['stretch'] for x in r['results']]))
+
+            # select first metric by default
             self.selected_metric = self.metrics[0]
+
+            # configure thresholds for each metric
+
+            self.thresholds = {}
+
+            minimum = dict(zip(self.metrics,
+                               [x['minimum'] for x in r['results']]))
+            self.thresholds['minimum'] = {'values': minimum,
+                                          'text': 'Minimum Specification',
+                                          'color': 'red'}
+
+            design = dict(zip(self.metrics,
+                              [x['design'] for x in r['results']]))
+            self.thresholds['design'] = {'values': design,
+                                         'text': 'Design Specification',
+                                         'color': 'blue'}
+
+            stretch = dict(zip(self.metrics,
+                               [x['stretch'] for x in r['results']]))
+            self.thresholds['stretch'] = {'values': stretch,
+                                          'text': 'Strecth Goal',
+                                          'color': 'green'}
 
         else:
             self.selected_metric = None
 
     def on_metric_change(self, attr, old, new):
 
+        # Update plot threshold annotations and axis labels
+
+        for t in self.annotations:
+            self.annotations[t]['span'].location = \
+                self.thresholds[t]['values'][new]
+            self.annotations[t]['label'].y = self.thresholds[t]['values'][new]
+            self.annotations[t]['arrow'].y = self.thresholds[t]['values'][new]
+
         self.selected_metric = new
 
         self.plot.yaxis.axis_label = self.selected_metric\
             + '(' + self.units[self.selected_metric] + ')'
 
-        # need these values to draw the spec thresholds
         size = len(self.dates)
         units = [self.units[self.selected_metric]] * size
-        minimum = [self.minimum[self.selected_metric]] * size
-        design = [self.design[self.selected_metric]] * size
-        stretch = [self.stretch[self.selected_metric]] * size
 
         # update the data source and the plot will automatically update
         self.source.data = dict(x=self.dates,
                                 y=[m['value'] for m in self.measurements if
                                    m['metric'] == self.selected_metric],
                                 desc=self.ci_id, ci_url=self.ci_url,
-                                units=units, minimum=minimum, design=design,
-                                stretch=stretch, )
+                                units=units, )
 
     def get_measurements(self):
 
@@ -169,14 +192,18 @@ class Metrics(object):
                     params={'ci_dataset': self.selected_dataset,
                             'page': page}).json()['results'])
 
-        # filter out failing jobs, this should be done by looking
-        # the job status # but for now it is useless
+        # filter out failed jobs, i.e jobs that have
+        # incomplete measurements. This should be done by looking
+        # at the job status, but for now it is useless
 
-        jobs = [job for job in jobs if job['measurements']]
+        jobs = [job for job in jobs
+                if len(job['measurements']) == len(self.metrics)]
 
-        self.ci_id = [job['ci_id'] for job in jobs]
+        self.ci_id = [int(job['ci_id']) for job in jobs]
 
         # 2016-08-10T05:22:37.700146Z
+        # DM-7517 job api return is sorted by date
+
         self.dates = [datetime.strptime(job['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
                       for job in jobs]
 
@@ -192,37 +219,41 @@ class Metrics(object):
 
         size = len(self.dates)
         units = [self.units[self.selected_metric]] * size
-        minimum = [self.minimum[self.selected_metric]] * size
-        design = [self.design[self.selected_metric]] * size
-        stretch = [self.stretch[self.selected_metric]] * size
 
         # measurements are filtered by metric
         self.source.data = dict(x=self.dates,
                                 y=[m['value'] for m in self.measurements
                                    if m['metric'] == self.selected_metric],
                                 desc=self.ci_id, ci_url=self.ci_url,
-                                units=units, minimum=minimum, design=design,
-                                stretch=stretch,)
+                                units=units, )
 
-    def draw_spec_annotations(self):
+    def draw_annotations(self, threshold):
 
-        minimum = self.plot.line(x='x', y='minimum', source=self.source,
-                                 line_width=1, color='red',
-                                 line_dash='dotted',)
-        self.legends.append(("Minimum spec", [minimum]))
+        location = threshold['values'][self.selected_metric]
+        color = threshold['color']
 
-        design = self.plot.line(x='x', y='design', source=self.source,
-                                line_width=1, color='blue',
-                                line_dash='dotted',)
+        span = Span(location=location, dimension='width',
+                    line_width=1, line_color=color, line_dash='dotted',)
 
-        self.legends.append(("Design spec", [design]))
+        self.plot.add_layout(span)
 
-        stretch = self.plot.line(x='x', y='stretch', source=self.source,
-                                 line_width=1, color='green',
-                                 line_dash='dotted',)
-        self.legends.append(("Stretch goal", [stretch]))
+        text = threshold['text']
+        label = Label(x=70, y=location, x_units='screen',
+                      y_units='data', text=text, text_color=color,
+                      text_font_size='11pt', text_font_style='normal',
+                      render_mode='css')
 
-        self.plot.add_layout(init_legend(legends=self.legends))
+        self.plot.add_layout(label)
+
+        arrow = Label(x=100, y=location, x_units='screen',
+                      y_units='data', text="&darr;",
+                      text_color=color, text_font_size='24pt',
+                      text_font_style='normal',
+                      render_mode='css', y_offset=-35)
+
+        self.plot.add_layout(arrow)
+
+        return {'span': span, 'label': label, 'arrow': arrow}
 
 
 curdoc().add_root(Metrics().layout)
