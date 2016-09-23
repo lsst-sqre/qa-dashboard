@@ -42,26 +42,26 @@
       "model":"dashboard.job",
       "pk":4,
       "fields":{
-         "ci_dataset":"decam",
-         "ci_id":"1",
+         "ci_dataset":"cfht",
+         "ci_id":"5",
          "ci_label":"centos-7",
-         "date":"2016-09-15T00:00:00.001Z",
+         "date":"2016-09-16T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/1/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
       }
    },
    {
       "model":"dashboard.job",
       "pk":5,
       "fields":{
-         "ci_dataset":"decam",
-         "ci_id":"2",
+         "ci_dataset":"cfht",
+         "ci_id":"6",
          "ci_label":"centos-7",
-         "date":"2016-09-15T08:00:00.001Z",
+         "date":"2016-09-16T16:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/2/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
       }
    },
    {
@@ -69,9 +69,9 @@
       "pk":6,
       "fields":{
          "ci_dataset":"decam",
-         "ci_id":"3",
+         "ci_id":"1",
          "ci_label":"centos-7",
-         "date":"2016-09-15T16:00:00.001Z",
+         "date":"2016-09-15T00:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
          "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
@@ -81,10 +81,10 @@
       "model":"dashboard.job",
       "pk":7,
       "fields":{
-         "ci_dataset":"cfht",
-         "ci_id":"4",
+         "ci_dataset":"decam",
+         "ci_id":"2",
          "ci_label":"centos-7",
-         "date":"2016-09-16T08:00:00.001Z",
+         "date":"2016-09-15T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
          "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
@@ -95,9 +95,22 @@
       "pk":8,
       "fields":{
          "ci_dataset":"decam",
+         "ci_id":"3",
+         "ci_label":"centos-7",
+         "date":"2016-09-15T16:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+      }
+   },
+    {
+      "model":"dashboard.job",
+      "pk":9,
+      "fields":{
+         "ci_dataset":"decam",
          "ci_id":"5",
          "ci_label":"centos-7",
-         "date":"2016-09-16T16:00:00.001Z",
+         "date":"2016-09-16T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
          "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
@@ -105,12 +118,12 @@
    },
    {
       "model":"dashboard.job",
-      "pk":9,
+      "pk":10,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"6",
          "ci_label":"centos-7",
-         "date":"2016-09-17T16:00:00.001Z",
+         "date":"2016-09-16T16:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
          "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
@@ -210,6 +223,30 @@
          "name":"afw",
          "git_branch":"master",
          "job":8
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":9,
+      "fields":{
+         "git_url":"https://github.com/lsst/afw.git",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "build_version":"b2000",
+         "name":"afw",
+         "git_branch":"master",
+         "job":9
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":10,
+      "fields":{
+         "git_url":"https://github.com/lsst/afw.git",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "build_version":"b2000",
+         "name":"afw",
+         "git_branch":"master",
+         "job":10
       }
    },
    {
@@ -376,7 +413,43 @@
    },
    {
       "model":"dashboard.measurement",
-      "pk":16,
+      "pk":19,
+      "fields":{
+         "metric":"AM2",
+         "value":5.0,
+         "job":7
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":20,
+      "fields":{
+         "metric":"AM1",
+         "value":5.0,
+         "job":7
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":21,
+      "fields":{
+         "metric":"PA1",
+         "value":5.0,
+         "job":7
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":22,
+      "fields":{
+         "metric":"AM2",
+         "value":5.0,
+         "job":8
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":23,
       "fields":{
          "metric":"AM1",
          "value":5.0,
@@ -385,20 +458,66 @@
    },
    {
       "model":"dashboard.measurement",
-      "pk":17,
+      "pk":24,
       "fields":{
-         "metric":"AM2",
-         "value":3.0,
+         "metric":"PA1",
+         "value":5.0,
          "job":8
       }
    },
    {
       "model":"dashboard.measurement",
-      "pk":18,
+      "pk":25,
+      "fields":{
+         "metric":"AM2",
+         "value":5.0,
+         "job":9
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":26,
+      "fields":{
+         "metric":"AM1",
+         "value":5.0,
+         "job":9
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":27,
       "fields":{
          "metric":"PA1",
-         "value":9.0,
-         "job":8
+         "value":5.0,
+         "job":9
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":28,
+      "fields":{
+         "metric":"AM2",
+         "value":5.0,
+         "job":10
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":29,
+      "fields":{
+         "metric":"AM1",
+         "value":5.0,
+         "job":10
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":30,
+      "fields":{
+         "metric":"PA1",
+         "value":5.0,
+         "job":10
       }
    }
 ]
+
