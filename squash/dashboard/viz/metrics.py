@@ -1,6 +1,7 @@
+import time
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
-                         Span, Label
+                         Span, Label, BoxAnnotation
 from bokeh.models.widgets import Select
 from bokeh.layouts import row, widgetbox
 from defaults import init_time_series_plot
@@ -15,7 +16,7 @@ class Metrics(object):
     def __init__(self):
 
         self.source = ColumnDataSource(data={'x': [], 'y': [], 'desc': [],
-                                             'ci_url': [], 'units': [],})
+                                             'ci_url': [], 'units': []})
         self.compose_layout()
 
     def compose_layout(self):
@@ -165,6 +166,8 @@ class Metrics(object):
         for t in self.thresholds:
             self.annotations[t] = self.make_annotations(self.thresholds[t])
 
+        self.box_annotations = self.make_box_annotations()
+
     def make_annotations(self, threshold):
         """Annotate the metric thresholds
         """
@@ -195,6 +198,43 @@ class Metrics(object):
 
         return {'span': span, 'label': label, 'arrow': arrow}
 
+    def get_box_coords(self):
+
+        last = len(self.data['ci_id']) - 2
+
+        start = []
+        end = []
+
+        for i, current in enumerate(self.data['ci_id']):
+            if i < last:
+                next = self.data['ci_id'][i+i]
+                if (next - current) > 1:
+                    start.append(time.mktime(
+                        self.data['dates'][i].timetuple())*1000)
+                    end.append(time.mktime(
+                        self.data['dates'][i+1].timetuple())*1000)
+                else:
+                    start.append(time.mktime(
+                        self.data['dates'][i].timetuple())*1000)
+                    end.append(time.mktime(
+                        self.data['dates'][i].timetuple())*1000)
+
+        return zip(start, end)
+
+    def make_box_annotations(self):
+        """Box annotations indicate regions in the plot with failed jobs
+        """
+        box = []
+        coords = self.get_box_coords()
+
+        for l, r in coords:
+            b = BoxAnnotation(left=l, right=r, fill_alpha=0.1,
+                              fill_color='red')
+            self.plot.add_layout(b)
+            box.append(b)
+
+        return box
+
     def configure_thresholds(self):
         """Thresholds have values for each metric, a text and color
         """
@@ -209,7 +249,7 @@ class Metrics(object):
                                      'color': 'blue'}
 
         self.thresholds['stretch'] = {'values': self.metrics['stretch'],
-                                      'text': 'Strecth Goal',
+                                      'text': 'Stretch Goal',
                                       'color': 'green'}
 
 
