@@ -106,7 +106,6 @@ class Metrics(object):
             self.annotations[t]['span'].location =\
                 self.thresholds[t]['values'][new]
             self.annotations[t]['label'].y = self.thresholds[t]['values'][new]
-            self.annotations[t]['arrow'].y = self.thresholds[t]['values'][new]
 
         # update plot labels
         self.plot.yaxis.axis_label = new\
@@ -176,27 +175,20 @@ class Metrics(object):
         color = threshold['color']
 
         span = Span(location=location, dimension='width',
-                    line_width=1, line_color=color, line_dash='dotted',)
+                    line_width=2, line_color=color, line_dash='dotted',)
 
         self.plot.add_layout(span)
 
         text = threshold['text']
+
         label = Label(x=70, y=location, x_units='screen',
-                      y_units='data', text=text, text_color=color,
+                      y_units='data', text=text + " &darr;", text_color=color,
                       text_font_size='11pt', text_font_style='normal',
                       render_mode='css')
 
         self.plot.add_layout(label)
 
-        arrow = Label(x=100, y=location, x_units='screen',
-                      y_units='data', text="&darr;",
-                      text_color=color, text_font_size='24pt',
-                      text_font_style='normal',
-                      render_mode='css', y_offset=-35)
-
-        self.plot.add_layout(arrow)
-
-        return {'span': span, 'label': label, 'arrow': arrow}
+        return {'span': span, 'label': label}
 
     def get_box_coords(self):
 
@@ -238,18 +230,17 @@ class Metrics(object):
     def configure_thresholds(self):
         """Thresholds have values for each metric, a text and color
         """
-
         self.thresholds = {}
         self.thresholds['minimum'] = {'values': self.metrics['minimum'],
-                                      'text': 'Minimum Specification',
+                                      'text': 'Minimum',
                                       'color': 'red'}
 
         self.thresholds['design'] = {'values': self.metrics['design'],
-                                     'text': 'Design Specification',
+                                     'text': 'Design',
                                      'color': 'blue'}
 
         self.thresholds['stretch'] = {'values': self.metrics['stretch'],
-                                      'text': 'Stretch Goal',
+                                      'text': 'Stretch',
                                       'color': 'green'}
 
 
