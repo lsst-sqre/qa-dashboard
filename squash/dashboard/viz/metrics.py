@@ -2,8 +2,8 @@ import time
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
                          Span, Label, BoxAnnotation
-from bokeh.models.widgets import Select
-from bokeh.layouts import row, widgetbox
+from bokeh.models.widgets import Select, Div
+from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
 from service import get_datasets, get_metrics, get_measurements_by_dataset
 
@@ -21,13 +21,14 @@ class Metrics(object):
 
     def compose_layout(self):
         """Compose the layout ot the app, the main elements are the widgets to
-        select the dataset and the metric and a plot
+        select the dataset, the metric, a div for the title and the plot
         """
         self.datasets = get_datasets()
+        self.selected_dataset = self.datasets['default']
 
         # dataset select widget
         dataset_select = Select(title="Data Set:",
-                                value=self.datasets['default'],
+                                value=self.selected_dataset,
                                 options=self.datasets['datasets'], width=100)
 
         dataset_select.on_change("value", self.on_dataset_change)
@@ -52,13 +53,12 @@ class Metrics(object):
             self.data = \
                 get_measurements_by_dataset(self.datasets['default'],
                                             len(self.metrics['metrics']))
-
         self.update_data_source()
-
+        self.title = Div(text=self.make_title())
         self.make_plot()
 
-        self.layout = row(widgetbox(dataset_select,
-                                    metric_select, width=150), self.plot)
+        self.layout = row(widgetbox(dataset_select, metric_select, width=150),
+                          column(widgetbox(self.title, width=1000), self.plot))
 
     def on_dataset_change(self, attr, old, new):
         """Handle dataset select event, it reloads the measurements
@@ -80,6 +80,8 @@ class Metrics(object):
         """
         self.data = \
             get_measurements_by_dataset(new, len(self.metrics['metrics']))
+
+        self.selected_dataset = new
         self.update_data_source()
 
     def on_metric_change(self, attr, old, new):
@@ -112,6 +114,7 @@ class Metrics(object):
             + '(' + self.metrics['units'][new] + ')'
 
         self.selected_metric = new
+        self.title.text = self.make_title()
         self.update_data_source()
 
     def update_data_source(self):
@@ -131,6 +134,14 @@ class Metrics(object):
                                 desc=self.data['ci_id'],
                                 ci_url=self.data['ci_url'],
                                 units=units,)
+
+    def make_title(self):
+        """ Update page title with the selected metric
+        """
+        text = """<center><h4>{}</h4>{}
+        </center>""".format(self.selected_metric,
+                            self.metrics['description'][self.selected_metric])
+        return text
 
     def make_plot(self):
         """Make the a line-circle-line time series plot with a hover,
