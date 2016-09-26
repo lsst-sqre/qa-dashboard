@@ -58,16 +58,19 @@ def get_metrics():
     design = {}
     stretch = {}
     units = {}
+    desc = {}
     default = None
     if metrics:
         minimum = dict(zip(metrics, [x['minimum'] for x in r['results']]))
         design = dict(zip(metrics, [x['design'] for x in r['results']]))
         stretch = dict(zip(metrics, [x['stretch'] for x in r['results']]))
         units = dict(zip(metrics, [x['units'] for x in r['results']]))
+        desc = dict(zip(metrics, [x['description'] for x in r['results']]))
         default = metrics[0]
 
     return {'metrics': metrics, 'minimum': minimum, 'design': design,
-            'stretch': stretch, 'units': units, 'default': default}
+            'stretch': stretch, 'units': units, 'description': desc,
+            'default': default}
 
 
 def get_measurements_by_dataset(selected_dataset, n_metrics):
