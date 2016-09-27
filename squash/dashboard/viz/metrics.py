@@ -210,7 +210,7 @@ class Metrics(object):
 
         for i, current in enumerate(self.data['ci_id']):
             if i < last:
-                next = self.data['ci_id'][i+i]
+                next = self.data['ci_id'][i+1]
                 if (next - current) > 1:
                     start.append(time.mktime(
                         self.data['dates'][i].timetuple())*1000)
