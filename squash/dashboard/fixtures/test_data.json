@@ -68,6 +68,19 @@
       "model":"dashboard.job",
       "pk":6,
       "fields":{
+         "ci_dataset":"cfht",
+         "ci_id":"7",
+         "ci_label":"centos-7",
+         "date":"2016-09-17T00:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+      }
+    },
+   {
+      "model":"dashboard.job",
+      "pk":7,
+      "fields":{
          "ci_dataset":"decam",
          "ci_id":"1",
          "ci_label":"centos-7",
@@ -79,7 +92,7 @@
    },
    {
       "model":"dashboard.job",
-      "pk":7,
+      "pk":8,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"2",
@@ -92,7 +105,7 @@
    },
    {
       "model":"dashboard.job",
-      "pk":8,
+      "pk":9,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"3",
@@ -105,7 +118,7 @@
    },
     {
       "model":"dashboard.job",
-      "pk":9,
+      "pk":10,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"5",
@@ -118,7 +131,7 @@
    },
    {
       "model":"dashboard.job",
-      "pk":10,
+      "pk":11,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"6",
@@ -130,6 +143,19 @@
       }
    },
    {
+      "model":"dashboard.job",
+      "pk":12,
+      "fields":{
+         "ci_dataset":"decam",
+         "ci_id":"7",
+         "ci_label":"centos-7",
+         "date":"2016-09-17T00:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+      }
+   },
+    {
       "model":"dashboard.versionedpackage",
       "pk":1,
       "fields":{
@@ -247,6 +273,30 @@
          "name":"afw",
          "git_branch":"master",
          "job":10
+      }
+   },
+    {
+      "model":"dashboard.versionedpackage",
+      "pk":11,
+      "fields":{
+         "git_url":"https://github.com/lsst/afw.git",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "build_version":"b2000",
+         "name":"afw",
+         "git_branch":"master",
+         "job":11
+      }
+   },
+ {
+      "model":"dashboard.versionedpackage",
+      "pk":12,
+      "fields":{
+         "git_url":"https://github.com/lsst/afw.git",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "build_version":"b2000",
+         "name":"afw",
+         "git_branch":"master",
+         "job":12
       }
    },
    {
@@ -517,6 +567,60 @@
          "metric":"PA1",
          "value":5.0,
          "job":10
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":31,
+      "fields":{
+         "metric":"AM1",
+         "value":5.0,
+         "job":11
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":32,
+      "fields":{
+         "metric":"AM2",
+         "value":5.0,
+         "job":11
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":33,
+      "fields":{
+         "metric":"PA1",
+         "value":5.0,
+         "job":11
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":34,
+      "fields":{
+         "metric":"AM1",
+         "value":5.0,
+         "job":12
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":35,
+      "fields":{
+         "metric":"AM2",
+         "value":5.0,
+         "job":12
+      }
+   },
+   {
+      "model":"dashboard.measurement",
+      "pk":36,
+      "fields":{
+         "metric":"PA1",
+         "value":5.0,
+         "job":12
       }
    }
 ]
