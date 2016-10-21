@@ -20,6 +20,7 @@ class MetricSerializer(serializers.ModelSerializer):
                             request=request),
          }
 
+
 class MeasurementSerializer(serializers.ModelSerializer):
     """Serializer for `models.Measurement` objects.
 
@@ -29,7 +30,58 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('metric', 'value')
+        fields = ('metric', 'job', 'value')
+
+
+class MetricsAppSerializer(serializers.ModelSerializer):
+
+    ci_id = serializers.SerializerMethodField()
+    ci_url = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+
+    changed_packages = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Measurement
+        fields = ('value', 'ci_id', 'ci_url', 'date', "changed_packages")
+
+    def get_ci_id(self, obj):
+        return obj.job.ci_id
+
+    def get_ci_url(self, obj):
+        return obj.job.ci_url
+
+    def get_date(self, obj):
+        return obj.job.date
+
+    def get_changed_packages(self, obj):
+
+        current = []
+        for pkg in VersionedPackage.objects.filter(job=obj.job):
+            current.append({"git_url": pkg.git_url,
+                            "git_commit": pkg.git_commit,
+                            "ci_id": pkg.job.ci_id,
+                            "name": pkg.name,
+                            "build_version": pkg.build_version})
+
+        try:
+            previous_job = obj.job.get_previous_by_date()
+            previous = []
+
+            for pkg in VersionedPackage.objects.filter(job=previous_job):
+                previous.append({"git_url": pkg.git_url,
+                                 "git_commit": pkg.git_commit,
+                                 "ci_id": pkg.job.ci_id,
+                                 "name": pkg.name,
+                                 "build_version": pkg.build_version})
+        except:
+            previous = current
+
+        # TODO: return the list of packages that changed in a given job with
+        # respect to the previous one by checking the diff in the git
+        # commit sha of each package
+
+        return {'previous_job': previous, 'current_job': current}
 
 
 class VersionedPackageSerializer(serializers.ModelSerializer):

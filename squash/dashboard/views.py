@@ -2,8 +2,8 @@ from django.views.generic import ListView
 from rest_framework import authentication, permissions,\
     viewsets, filters, response
 from .forms import JobFilter
-from .models import Job, Metric
-from .serializers import JobSerializer, MetricSerializer
+from .models import Job, Metric, Measurement
+from .serializers import JobSerializer, MetricSerializer, MetricsAppSerializer
 from bokeh.embed import autoload_server
 from django.conf import settings
 
@@ -46,6 +46,14 @@ class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
     filter_class = JobFilter
     search_fields = ('ci_id',)
     ordering_fields = ('date',)
+
+
+class MetricsAppViewSet(DefaultsMixin, viewsets.ModelViewSet):
+    """ API endpoint consumed by the metrics app"""
+
+    queryset = Measurement.objects.order_by('job__date')
+    serializer_class = MetricsAppSerializer
+    filter_fields = ('job__ci_dataset', 'metric')
 
 
 class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):

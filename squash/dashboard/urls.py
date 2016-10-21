@@ -8,6 +8,8 @@ admin.site.site_header = 'SQUASH Admin'
 api_router = DefaultRouter()
 api_router.register(r'jobs', views.JobViewSet)
 api_router.register(r'metrics', views.MetricViewSet)
+api_router.register(r'measurements', views.MetricsAppViewSet,
+                    base_name='measurements')
 api_router.register(r'datasets', views.DatasetViewSet, base_name='datasets')
 
 urlpatterns = [
