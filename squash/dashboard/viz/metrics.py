@@ -5,7 +5,7 @@ from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
 from bokeh.models.widgets import Select, Div
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
-from service import get_datasets, get_metrics, get_measurements_by_dataset
+from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric
 
 
 class Metrics(object):
@@ -16,7 +16,7 @@ class Metrics(object):
     def __init__(self):
 
         self.source = ColumnDataSource(data={'x': [], 'y': [], 'desc': [],
-                                             'ci_url': [], 'units': []})
+                                             'ci_urls': [], 'units': []})
         self.compose_layout()
 
     def compose_layout(self):
@@ -46,19 +46,22 @@ class Metrics(object):
 
         metric_select.on_change("value", self.on_metric_change)
 
-        # data contains values for all the metrics, we load them
-        # once and filter by the selected metric
+        # data contains values for the selected dataset and metric
         self.data = {}
-        if self.datasets['default']:
+
+        if self.selected_dataset and self.selected_metric:
             self.data = \
-                get_measurements_by_dataset(self.datasets['default'],
-                                            len(self.metrics['metrics']))
+                get_meas_by_dataset_and_metric(self.selected_dataset,
+                                               self.selected_metric)
+        self.plot_title = Div(text="")
+
         self.update_data_source()
-        self.title = Div(text=self.make_title())
+
         self.make_plot()
 
         self.layout = row(widgetbox(dataset_select, metric_select, width=150),
-                          column(widgetbox(self.title, width=1000), self.plot))
+                          column(widgetbox(self.plot_title, width=1000),
+                                 self.plot))
 
     def on_dataset_change(self, attr, old, new):
         """Handle dataset select event, it reloads the measurements
@@ -79,9 +82,10 @@ class Metrics(object):
         /widgets.html#userguide-interaction-widgets
         """
         self.data = \
-            get_measurements_by_dataset(new, len(self.metrics['metrics']))
+            get_meas_by_dataset_and_metric(new, self.selected_metric)
 
         self.selected_dataset = new
+
         self.update_data_source()
 
     def on_metric_change(self, attr, old, new):
@@ -114,58 +118,65 @@ class Metrics(object):
             + '(' + self.metrics['units'][new] + ')'
 
         self.selected_metric = new
-        self.title.text = self.make_title()
+
+        self.data = \
+            get_meas_by_dataset_and_metric(self.selected_dataset, new)
+
         self.update_data_source()
 
     def update_data_source(self):
-        """Update the bokeh data source with measurements for the seleceted
-        metric
+        """Update the bokeh data source with measurements for the selected
+        dataset and metric
         """
-        # filter measurements by the selected metric
-        y = [m['value'] for m in self.data['measurements']
-             if m['metric'] == self.selected_metric]
 
         # all attributes of a datasource must have the same size
         size = len(self.data['dates'])
         units = [self.metrics['units'][self.selected_metric]] * size
 
         self.source.data = dict(x=self.data['dates'],
-                                y=y,
-                                desc=self.data['ci_id'],
-                                ci_url=self.data['ci_url'],
+                                y=self.data['values'],
+                                desc=self.data['ci_ids'],
+                                ci_urls=self.data['ci_urls'],
                                 units=units,)
 
-    def make_title(self):
+        # plot title and description must be updated each time
+        # the dataset and metric changes
+
+        title = "{} for {} dataset".format(self.selected_metric,
+                                           self.selected_dataset)
+
+        description = self.metrics['description'][self.selected_metric]
+
+        self.plot_title.text = self.make_title(title, description)
+
+    def make_title(self, title, description):
         """ Update page title with the selected metric
         """
-        text = """<center><h4>{}</h4>{}
-        </center>""".format(self.selected_metric,
-                            self.metrics['description'][self.selected_metric])
-        return text
+        return """<left><h2>{}</h2>{}
+        </left>""".format(title, description)
 
     def make_plot(self):
         """Make the a line-circle-line time series plot with a hover,
         tap and annotations
         """
         # display information associated to each measurement
-        hover = HoverTool(tooltips=[("Build ID", "@desc"),
+        hover = HoverTool(tooltips=[("Job ID", "@desc"),
                                     ("Value", "@y (@units)")])
 
         self.plot = init_time_series_plot(hover=hover)
 
         line = self.plot.line(
             x='x', y='y', source=self.source,
-            line_width=2, color='black',
-        )
+            line_width=2, color='black')
 
         self.legends = [("Measurements", [line])]
 
         self.plot.circle(x='x', y='y', source=self.source,
                          color="black", fill_color="white", size=16,)
 
-        # set a tap tool to link each measurement with the ci_url
+        # set a tap tool to link each measurement with the ci_urls
         tap = self.plot.select(type=TapTool)
-        tap.callback = OpenURL(url="@ci_url")
+        tap.callback = OpenURL(url="@ci_urls")
 
         # set y-axis label
         self.plot.yaxis.axis_label = self.metrics['default'] +\
@@ -202,15 +213,16 @@ class Metrics(object):
         return {'span': span, 'label': label}
 
     def get_box_coords(self):
+        """Get coords used in box annotation
+        """
 
-        last = len(self.data['ci_id']) - 2
-
+        last = len(self.data['ci_ids']) - 2
         start = []
         end = []
 
-        for i, current in enumerate(self.data['ci_id']):
+        for i, current in enumerate(self.data['ci_ids']):
             if i < last:
-                next = self.data['ci_id'][i+1]
+                next = self.data['ci_ids'][i+1]
                 if (next - current) > 1:
                     start.append(time.mktime(
                         self.data['dates'][i].timetuple())*1000)
@@ -225,7 +237,8 @@ class Metrics(object):
         return zip(start, end)
 
     def make_box_annotations(self):
-        """Box annotations indicate regions in the plot with failed jobs
+        """Box annotations indicate regions in the plot with missing jobs
+        looking at missing values in the ci_ids list
         """
         box = []
         coords = self.get_box_coords()
