@@ -2,7 +2,7 @@ import time
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
                          Span, Label, BoxAnnotation
-from bokeh.models.widgets import Select, Div
+from bokeh.models.widgets import Select, Div, DataTable, TableColumn, StringFormatter, HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
 from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric
@@ -15,14 +15,24 @@ class Metrics(object):
 
     def __init__(self):
 
-        self.source = ColumnDataSource(data={'x': [], 'y': [], 'desc': [],
-                                             'ci_urls': [], 'units': []})
+        # app title
+        self.title = Div(text="")
+        # data contains values for the selected dataset and metric
+        self.data = {}
+
+        # this column data source is used by bokeh to update the plot
+        self.source = ColumnDataSource(data={'x': [], 'y': [], 'ci_ids': [],
+                                             'ci_urls': [], 'units': [],
+                                             'names': [], 'git_urls': [],
+                                             'comments':[]
+                                             })
         self.compose_layout()
 
     def compose_layout(self):
         """Compose the layout ot the app, the main elements are the widgets to
-        select the dataset, the metric, a div for the title and the plot
+        select the dataset, the metric, a div for the title, a plot and a table
         """
+
         self.datasets = get_datasets()
         self.selected_dataset = self.datasets['default']
 
@@ -36,8 +46,7 @@ class Metrics(object):
         self.metrics = get_metrics()
         self.selected_metric = self.metrics['default']
 
-        # thresholds are used to make plot annotations for now, we plan
-        # to use them to send alerts too
+        # thresholds are used to make plot annotations
         self.configure_thresholds()
 
         # metric select widget
@@ -46,22 +55,28 @@ class Metrics(object):
 
         metric_select.on_change("value", self.on_metric_change)
 
-        # data contains values for the selected dataset and metric
-        self.data = {}
 
         if self.selected_dataset and self.selected_metric:
             self.data = \
                 get_meas_by_dataset_and_metric(self.selected_dataset,
                                                self.selected_metric)
-        self.plot_title = Div(text="")
-
         self.update_data_source()
 
         self.make_plot()
 
+        title = "Code Changes"
+
+        description = "The table lists the packages that changed in the selected" \
+                      " Job ID with respect to the previous one. Tap on the Job " \
+                      " ID or on the package name for more information."
+
+        table_title = Div(text=self.make_title(title, description))
+
+        self.make_table()
+
         self.layout = row(widgetbox(dataset_select, metric_select, width=150),
-                          column(widgetbox(self.plot_title, width=1000),
-                                 self.plot))
+                          column(widgetbox(self.title, width=1000), self.plot,
+                                 widgetbox(table_title, width=1000), self.table))
 
     def on_dataset_change(self, attr, old, new):
         """Handle dataset select event, it reloads the measurements
@@ -81,6 +96,7 @@ class Metrics(object):
         http://bokeh.pydata.org/en/latest/docs/user_guide/interaction
         /widgets.html#userguide-interaction-widgets
         """
+
         self.data = \
             get_meas_by_dataset_and_metric(new, self.selected_metric)
 
@@ -132,12 +148,16 @@ class Metrics(object):
         # all attributes of a datasource must have the same size
         size = len(self.data['dates'])
         units = [self.metrics['units'][self.selected_metric]] * size
+        comments = [''] * size
 
         self.source.data = dict(x=self.data['dates'],
                                 y=self.data['values'],
-                                desc=self.data['ci_ids'],
+                                ci_ids=self.data['ci_ids'],
                                 ci_urls=self.data['ci_urls'],
-                                units=units,)
+                                units=units,
+                                names=self.data['names'],
+                                git_urls=self.data['git_urls'],
+                                comments=comments)
 
         # plot title and description must be updated each time
         # the dataset and metric changes
@@ -147,11 +167,12 @@ class Metrics(object):
 
         description = self.metrics['description'][self.selected_metric]
 
-        self.plot_title.text = self.make_title(title, description)
+        self.title.text = self.make_title(title, description)
 
     def make_title(self, title, description):
         """ Update page title with the selected metric
         """
+
         return """<left><h2>{}</h2>{}
         </left>""".format(title, description)
 
@@ -159,8 +180,9 @@ class Metrics(object):
         """Make the a line-circle-line time series plot with a hover,
         tap and annotations
         """
+
         # display information associated to each measurement
-        hover = HoverTool(tooltips=[("Job ID", "@desc"),
+        hover = HoverTool(tooltips=[("Job ID", "@ci_ids"),
                                     ("Value", "@y (@units)")])
 
         self.plot = init_time_series_plot(hover=hover)
@@ -176,7 +198,6 @@ class Metrics(object):
 
         # set a tap tool to link each measurement with the ci_urls
         tap = self.plot.select(type=TapTool)
-        tap.callback = OpenURL(url="@ci_urls")
 
         # set y-axis label
         self.plot.yaxis.axis_label = self.metrics['default'] +\
@@ -188,6 +209,28 @@ class Metrics(object):
             self.annotations[t] = self.make_annotations(self.thresholds[t])
 
         self.box_annotations = self.make_box_annotations()
+
+    def make_table(self):
+        """Make a data table to list the packages that changed with respect to
+        the previous build
+        """
+
+        formatter = StringFormatter(text_align="right")
+
+        ci_url_formatter = HTMLTemplateFormatter(template='<a href="<%= ci_urls %>" target="_blank"><%= value %></a>')
+
+        git_url_formatter = HTMLTemplateFormatter(template='<a href="<%= git_urls %>" target="_blank"><%= value %></a>')
+
+        columns = [
+            TableColumn(field="ci_ids", title="Job ID", formatter=ci_url_formatter),
+            TableColumn(field="names", title="Packages", formatter=git_url_formatter),
+            TableColumn(field="comments", title="Comments")
+        ]
+
+        self.table = DataTable(
+            source=self.source, columns=columns, width=900, height=100,
+            row_headers=True, fit_columns=False, scroll_to_selection=True, editable=True
+        )
 
     def make_annotations(self, threshold):
         """Annotate the metric thresholds
@@ -240,6 +283,7 @@ class Metrics(object):
         """Box annotations indicate regions in the plot with missing jobs
         looking at missing values in the ci_ids list
         """
+
         box = []
         coords = self.get_box_coords()
 

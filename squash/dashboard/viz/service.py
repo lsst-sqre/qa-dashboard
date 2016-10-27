@@ -121,17 +121,28 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
                         'metric': selected_metric,
                         'page': page}).json()['results'])
 
-    ci_ids = [int(measurement['ci_id']) for measurement in measurements]
+    ci_ids = [int(m['ci_id']) for m in measurements]
 
     # 2016-08-10T05:22:37.700146Z
     # after DM-7517 jobs return is sorted by date and the same is done for
     # the measurements
-    dates = [datetime.strptime(measurement['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
-             for measurement in measurements]
+    dates = [datetime.strptime(m['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+             for m in measurements]
 
-    values = [measurement['value'] for measurement in measurements]
+    values = [m['value'] for m in measurements]
 
-    ci_urls = [measurement['ci_url'] for measurement in measurements]
+    ci_urls = [m['ci_url'] for m in measurements]
+
+    # todo: hanlde lists of packages
+    packages = [m['changed_packages'][0] for m in measurements]
+
+    names = [p['name'] for p in packages]
+    git_urls = [p['git_url'] for p in packages]
 
     return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
-            'ci_urls': ci_urls}
+            'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
+
+
+if __name__=="__main__":
+
+    print(get_meas_by_dataset_and_metric('cfht','AM1'))

@@ -48,7 +48,7 @@
          "date":"2016-09-16T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/5/"
       }
    },
    {
@@ -61,7 +61,7 @@
          "date":"2016-09-16T16:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/6/"
       }
    },
    {
@@ -74,7 +74,7 @@
          "date":"2016-09-17T00:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/7/"
       }
     },
    {
@@ -87,7 +87,7 @@
          "date":"2016-09-15T00:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/1/"
       }
    },
    {
@@ -100,7 +100,7 @@
          "date":"2016-09-15T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/2/"
       }
    },
    {
@@ -126,7 +126,7 @@
          "date":"2016-09-16T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/5/"
       }
    },
    {
@@ -139,7 +139,7 @@
          "date":"2016-09-16T16:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/6/"
       }
    },
    {
@@ -152,7 +152,7 @@
          "date":"2016-09-17T00:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/7/"
       }
    },
     {

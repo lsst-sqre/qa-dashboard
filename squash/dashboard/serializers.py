@@ -81,7 +81,7 @@ class MetricsAppSerializer(serializers.ModelSerializer):
         # respect to the previous one by checking the diff in the git
         # commit sha of each package
 
-        return {'previous_job': previous, 'current_job': current}
+        return current
 
 
 class VersionedPackageSerializer(serializers.ModelSerializer):
