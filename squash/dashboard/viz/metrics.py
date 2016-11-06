@@ -1,8 +1,9 @@
 import time
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, OpenURL, TapTool, HoverTool,\
+from bokeh.models import ColumnDataSource, HoverTool,\
                          Span, Label, BoxAnnotation
-from bokeh.models.widgets import Select, Div, DataTable, TableColumn, StringFormatter, HTMLTemplateFormatter
+from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
+                                 HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
 from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric
@@ -24,7 +25,6 @@ class Metrics(object):
         self.source = ColumnDataSource(data={'x': [], 'y': [], 'ci_ids': [],
                                              'ci_urls': [], 'units': [],
                                              'names': [], 'git_urls': [],
-                                             'comments':[]
                                              })
         self.compose_layout()
 
@@ -55,7 +55,6 @@ class Metrics(object):
 
         metric_select.on_change("value", self.on_metric_change)
 
-
         if self.selected_dataset and self.selected_metric:
             self.data = \
                 get_meas_by_dataset_and_metric(self.selected_dataset,
@@ -66,9 +65,11 @@ class Metrics(object):
 
         title = "Code Changes"
 
-        description = "The table lists the packages that changed in the selected" \
-                      " Job ID with respect to the previous one. Tap on the Job " \
-                      " ID or on the package name for more information."
+        description = "The table lists the jobs, the measurement values for " \
+                      "the selected data set and metric and the packages " \
+                      "that have changed with respect to the pevious job." \
+                      "Tap on the Job ID or on the Package name for more " \
+                      "information."
 
         table_title = Div(text=self.make_title(title, description))
 
@@ -148,7 +149,6 @@ class Metrics(object):
         # all attributes of a datasource must have the same size
         size = len(self.data['dates'])
         units = [self.metrics['units'][self.selected_metric]] * size
-        comments = [''] * size
 
         self.source.data = dict(x=self.data['dates'],
                                 y=self.data['values'],
@@ -156,8 +156,7 @@ class Metrics(object):
                                 ci_urls=self.data['ci_urls'],
                                 units=units,
                                 names=self.data['names'],
-                                git_urls=self.data['git_urls'],
-                                comments=comments)
+                                git_urls=self.data['git_urls'])
 
         # plot title and description must be updated each time
         # the dataset and metric changes
@@ -196,9 +195,6 @@ class Metrics(object):
         self.plot.circle(x='x', y='y', source=self.source,
                          color="black", fill_color="white", size=16,)
 
-        # set a tap tool to link each measurement with the ci_urls
-        tap = self.plot.select(type=TapTool)
-
         # set y-axis label
         self.plot.yaxis.axis_label = self.metrics['default'] +\
             ' (' + self.metrics['units'][self.selected_metric] + ')'
@@ -215,21 +211,29 @@ class Metrics(object):
         the previous build
         """
 
-        formatter = StringFormatter(text_align="right")
+        template = '<a href="<%= ci_urls %>"><%= value %></a>'
+        ci_url_formatter = HTMLTemplateFormatter(template=template)
 
-        ci_url_formatter = HTMLTemplateFormatter(template='<a href="<%= ci_urls %>" target="_blank"><%= value %></a>')
-
-        git_url_formatter = HTMLTemplateFormatter(template='<a href="<%= git_urls %>" target="_blank"><%= value %></a>')
+        template = '<% for (x in git_urls) { ' \
+                   '       if (x>0) print(", "); ' \
+                   '       print("<a href=" + git_urls[x] + ">" ' \
+                   '              + value[x] + "</a>")' \
+                   '   }; ' \
+                   '%>'
+        git_url_formatter = HTMLTemplateFormatter(template=template)
 
         columns = [
-            TableColumn(field="ci_ids", title="Job ID", formatter=ci_url_formatter),
-            TableColumn(field="names", title="Packages", formatter=git_url_formatter),
-            TableColumn(field="comments", title="Comments")
+            TableColumn(field="ci_ids", title="Job ID",
+                        formatter=ci_url_formatter),
+            TableColumn(field="y", title="Value"),
+            TableColumn(field="names", title="Packages",
+                        formatter=git_url_formatter),
         ]
 
         self.table = DataTable(
-            source=self.source, columns=columns, width=900, height=100,
-            row_headers=True, fit_columns=False, scroll_to_selection=True, editable=True
+            source=self.source, columns=columns, width=900, height=200,
+            row_headers=True, fit_columns=False, scroll_to_selection=True,
+            editable=True
         )
 
     def make_annotations(self, threshold):
