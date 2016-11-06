@@ -133,16 +133,21 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
 
     ci_urls = [m['ci_url'] for m in measurements]
 
-    # todo: hanlde lists of packages
-    packages = [m['changed_packages'][0] for m in measurements]
+    packages = [m['changed_packages'] for m in measurements]
 
-    names = [p['name'] for p in packages]
-    git_urls = [p['git_url'] for p in packages]
+    # list of package names, name is the first element in the tuple
+    names = []
+    for i, sublist in enumerate(packages):
+        names.append([])
+        for package in sublist:
+            names[i].append(package[0])
+
+    # list of git urls, git_url is the third element in the tuple
+    git_urls = []
+    for i, sublist in enumerate(packages):
+        git_urls.append([])
+        for package in sublist:
+            git_urls[i].append(package[2])
 
     return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
-
-
-if __name__=="__main__":
-
-    print(get_meas_by_dataset_and_metric('cfht','AM1'))
