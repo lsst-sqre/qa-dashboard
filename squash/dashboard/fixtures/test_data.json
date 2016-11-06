@@ -12,9 +12,22 @@
          "ci_url":"https://ci.lsst.codes/job/ci_cfht/1/"
       }
    },
-   {
+  {
       "model":"dashboard.job",
       "pk":2,
+      "fields":{
+         "ci_dataset":"decam",
+         "ci_id":"1",
+         "ci_label":"centos-7",
+         "date":"2016-09-15T00:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_decam/1/"
+      }
+   },
+   {
+      "model":"dashboard.job",
+      "pk":3,
       "fields":{
          "ci_dataset":"cfht",
          "ci_id":"2",
@@ -27,72 +40,7 @@
    },
    {
       "model":"dashboard.job",
-      "pk":3,
-      "fields":{
-         "ci_dataset":"cfht",
-         "ci_id":"3",
-         "ci_label":"centos-7",
-         "date":"2016-09-15T16:00:00.001Z",
-         "ci_name":"validate_drp",
-         "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
-      }
-   },
-   {
-      "model":"dashboard.job",
       "pk":4,
-      "fields":{
-         "ci_dataset":"cfht",
-         "ci_id":"5",
-         "ci_label":"centos-7",
-         "date":"2016-09-16T08:00:00.001Z",
-         "ci_name":"validate_drp",
-         "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
-      }
-   },
-   {
-      "model":"dashboard.job",
-      "pk":5,
-      "fields":{
-         "ci_dataset":"cfht",
-         "ci_id":"6",
-         "ci_label":"centos-7",
-         "date":"2016-09-16T16:00:00.001Z",
-         "ci_name":"validate_drp",
-         "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
-      }
-   },
-   {
-      "model":"dashboard.job",
-      "pk":6,
-      "fields":{
-         "ci_dataset":"cfht",
-         "ci_id":"7",
-         "ci_label":"centos-7",
-         "date":"2016-09-17T00:00:00.001Z",
-         "ci_name":"validate_drp",
-         "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
-      }
-    },
-   {
-      "model":"dashboard.job",
-      "pk":7,
-      "fields":{
-         "ci_dataset":"decam",
-         "ci_id":"1",
-         "ci_label":"centos-7",
-         "date":"2016-09-15T00:00:00.001Z",
-         "ci_name":"validate_drp",
-         "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
-      }
-   },
-   {
-      "model":"dashboard.job",
-      "pk":8,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"2",
@@ -100,14 +48,14 @@
          "date":"2016-09-15T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_decam/2/"
       }
    },
    {
       "model":"dashboard.job",
-      "pk":9,
+      "pk":5,
       "fields":{
-         "ci_dataset":"decam",
+         "ci_dataset":"cfht",
          "ci_id":"3",
          "ci_label":"centos-7",
          "date":"2016-09-15T16:00:00.001Z",
@@ -115,10 +63,36 @@
          "status":0,
          "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
       }
+  },
+  {
+      "model":"dashboard.job",
+      "pk":6,
+      "fields":{
+         "ci_dataset":"decam",
+         "ci_id":"3",
+         "ci_label":"centos-7",
+         "date":"2016-09-15T16:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_decam/3/"
+      }
    },
     {
       "model":"dashboard.job",
-      "pk":10,
+      "pk":7,
+      "fields":{
+         "ci_dataset":"cfht",
+         "ci_id":"5",
+         "ci_label":"centos-7",
+         "date":"2016-09-16T08:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/5/"
+      }
+   },
+  {
+      "model":"dashboard.job",
+      "pk":8,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"5",
@@ -126,12 +100,24 @@
          "date":"2016-09-16T08:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_decam/5/"
+      }
+   }, {
+      "model":"dashboard.job",
+      "pk":9,
+      "fields":{
+         "ci_dataset":"cfht",
+         "ci_id":"6",
+         "ci_label":"centos-7",
+         "date":"2016-09-16T16:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/6/"
       }
    },
-   {
+  {
       "model":"dashboard.job",
-      "pk":11,
+      "pk":10,
       "fields":{
          "ci_dataset":"decam",
          "ci_id":"6",
@@ -139,9 +125,21 @@
          "date":"2016-09-16T16:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_decam/6/"
       }
-   },
+   }, {
+      "model":"dashboard.job",
+      "pk":11,
+      "fields":{
+         "ci_dataset":"cfht",
+         "ci_id":"7",
+         "ci_label":"centos-7",
+         "date":"2016-09-17T00:00:00.001Z",
+         "ci_name":"validate_drp",
+         "status":0,
+         "ci_url":"https://ci.lsst.codes/job/ci_cfht/7/"
+      }
+    },
    {
       "model":"dashboard.job",
       "pk":12,
@@ -152,24 +150,36 @@
          "date":"2016-09-17T00:00:00.001Z",
          "ci_name":"validate_drp",
          "status":0,
-         "ci_url":"https://ci.lsst.codes/job/ci_cfht/3/"
+         "ci_url":"https://ci.lsst.codes/job/ci_dataset7/"
       }
    },
-    {
-      "model":"dashboard.versionedpackage",
-      "pk":1,
-      "fields":{
-         "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
-         "build_version":"b2000",
-         "name":"afw",
-         "git_branch":"master",
-         "job":1
+   {
+      "model": "dashboard.versionedpackage",
+      "pk": 1,
+      "fields": {
+         "git_url": "https://github.com/lsst/afw.git",
+         "git_commit": "fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "build_version": "b2000",
+         "name": "afw",
+         "git_branch": "master",
+         "job": 1
       }
    },
    {
       "model":"dashboard.versionedpackage",
       "pk":2,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":1
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":3,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
          "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
@@ -181,10 +191,22 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":3,
+      "pk":4,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":2
+      }
+   },
+    {
+      "model":"dashboard.versionedpackage",
+      "pk":5,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e96",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -193,10 +215,22 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":4,
+      "pk":6,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":3
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":7,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e96",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -205,10 +239,22 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":5,
+      "pk":8,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":4
+      }
+   },
+    {
+      "model":"dashboard.versionedpackage",
+      "pk":9,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e96",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -217,10 +263,22 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":6,
+      "pk":10,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":5
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":11,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e96",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -229,10 +287,23 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":7,
+      "pk":12,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":6
+      }
+   },
+
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":13,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e97",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -241,10 +312,22 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":8,
+      "pk":14,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":7
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":15,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e97",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -253,46 +336,94 @@
    },
    {
       "model":"dashboard.versionedpackage",
-      "pk":9,
+      "pk":16,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":8
+      }
+   },
+    {
+      "model":"dashboard.versionedpackage",
+      "pk":17,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e97",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
          "job":9
       }
    },
+    {
+      "model":"dashboard.versionedpackage",
+      "pk":18,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":9
+      }
+   },
    {
       "model":"dashboard.versionedpackage",
-      "pk":10,
+      "pk":19,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e97",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
          "job":10
       }
    },
-    {
+     {
       "model":"dashboard.versionedpackage",
-      "pk":11,
+      "pk":20,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fa",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":10
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":21,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e98",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
          "job":11
       }
    },
- {
+  {
       "model":"dashboard.versionedpackage",
-      "pk":12,
+      "pk":22,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fb",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":11
+      }
+   },
+   {
+      "model":"dashboard.versionedpackage",
+      "pk":23,
       "fields":{
          "git_url":"https://github.com/lsst/afw.git",
-         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e95",
+         "git_commit":"fc355a99abe3425003b0e5fbe1e13a39644b1e98",
          "build_version":"b2000",
          "name":"afw",
          "git_branch":"master",
@@ -300,6 +431,18 @@
       }
    },
    {
+      "model":"dashboard.versionedpackage",
+      "pk":24,
+      "fields":{
+         "name": "cfitsio",
+         "git_url": "https://github.com/lsst/cfitsio.git",
+         "git_commit": "b56ecf282e296255677bc23bc742639d726270fb",
+         "git_branch": "master",
+         "build_version": "3360.lsst4",
+         "job":12
+      }
+   },
+    {
       "model":"dashboard.measurement",
       "pk":1,
       "fields":{
@@ -331,7 +474,7 @@
       "pk":4,
       "fields":{
          "metric":"AM1",
-         "value":6.0,
+         "value":3.5,
          "job":2
       }
    },
@@ -340,7 +483,7 @@
       "pk":5,
       "fields":{
          "metric":"AM2",
-         "value":10.0,
+         "value":5.0,
          "job":2
       }
    },
@@ -349,7 +492,7 @@
       "pk":6,
       "fields":{
          "metric":"PA1",
-         "value":3.0,
+         "value":7.0,
          "job":2
       }
    },
@@ -358,7 +501,7 @@
       "pk":7,
       "fields":{
          "metric":"AM1",
-         "value":2.0,
+         "value":3.0,
          "job":3
       }
    },
@@ -367,7 +510,7 @@
       "pk":8,
       "fields":{
          "metric":"AM2",
-         "value":8.0,
+         "value":5.0,
          "job":3
       }
    },
@@ -376,7 +519,7 @@
       "pk":9,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":3
       }
    },
@@ -385,7 +528,7 @@
       "pk":10,
       "fields":{
          "metric":"AM1",
-         "value":2.0,
+         "value":3.5,
          "job":4
       }
    },
@@ -394,7 +537,7 @@
       "pk":11,
       "fields":{
          "metric":"AM2",
-         "value":10.0,
+         "value":5.0,
          "job":4
       }
    },
@@ -403,7 +546,7 @@
       "pk":12,
       "fields":{
          "metric":"PA1",
-         "value":3.0,
+         "value":7.0,
          "job":4
       }
    },
@@ -412,7 +555,7 @@
       "pk":13,
       "fields":{
          "metric":"AM1",
-         "value":1.0,
+         "value":3.0,
          "job":5
       }
    },
@@ -439,7 +582,7 @@
       "pk":16,
       "fields":{
          "metric":"AM1",
-         "value":1.0,
+         "value":3.5,
          "job":6
       }
    },
@@ -448,7 +591,7 @@
       "pk":17,
       "fields":{
          "metric":"AM2",
-         "value":8.0,
+         "value":5.0,
          "job":6
       }
    },
@@ -457,7 +600,7 @@
       "pk":18,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":6
       }
    },
@@ -475,7 +618,7 @@
       "pk":20,
       "fields":{
          "metric":"AM1",
-         "value":5.0,
+         "value":3.5,
          "job":7
       }
    },
@@ -484,7 +627,7 @@
       "pk":21,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":7
       }
    },
@@ -502,7 +645,7 @@
       "pk":23,
       "fields":{
          "metric":"AM1",
-         "value":5.0,
+         "value":3.5,
          "job":8
       }
    },
@@ -511,7 +654,7 @@
       "pk":24,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":8
       }
    },
@@ -529,7 +672,7 @@
       "pk":26,
       "fields":{
          "metric":"AM1",
-         "value":5.0,
+         "value":3.5,
          "job":9
       }
    },
@@ -538,7 +681,7 @@
       "pk":27,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":9
       }
    },
@@ -556,7 +699,7 @@
       "pk":29,
       "fields":{
          "metric":"AM1",
-         "value":5.0,
+         "value":3.5,
          "job":10
       }
    },
@@ -565,7 +708,7 @@
       "pk":30,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":10
       }
    },
@@ -574,7 +717,7 @@
       "pk":31,
       "fields":{
          "metric":"AM1",
-         "value":5.0,
+         "value":3.0,
          "job":11
       }
    },
@@ -592,7 +735,7 @@
       "pk":33,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":11
       }
    },
@@ -601,7 +744,7 @@
       "pk":34,
       "fields":{
          "metric":"AM1",
-         "value":5.0,
+         "value":3.5,
          "job":12
       }
    },
@@ -619,7 +762,7 @@
       "pk":36,
       "fields":{
          "metric":"PA1",
-         "value":5.0,
+         "value":7.0,
          "job":12
       }
    }

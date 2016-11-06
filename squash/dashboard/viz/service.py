@@ -73,17 +73,16 @@ def get_metrics():
             'default': default}
 
 
-def get_measurements_by_dataset(selected_dataset, n_metrics):
-    """ Get measurements for all metrics for the selected data set
+def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
+    """ Get measurements for a given dataset and metric from the measurements
+    api endpoint
 
     Parameters
     ----------
     selected_dataset : str
         the current selected dataset
-    n_metrics : int
-        the number of metrics measured for the selected_dataset, it is
-        being used to filter failed jobs while we dont have the job
-        status avaiable
+    selected_metric : str
+        the current selected metric
 
     Returns
     -------
@@ -99,46 +98,56 @@ def get_measurements_by_dataset(selected_dataset, n_metrics):
     """
     api = requests.get(SQUASH_API_URL).json()
 
-    # e.g. http://localhost:8000/dashboard/api/jobs/?ci_dataset=cfht
-    r = requests.get(api['jobs'],
-                     params={'ci_dataset': selected_dataset}).json()
+    # http://localhost:8000/dashboard/api/measurements/?job__ci_dataset=cfht&metric=AM1
+
+    r = requests.get(api['measurements'],
+                     params={'job__ci_dataset': selected_dataset,
+                             'metric': selected_metric}).json()
 
     # results are paginated, walk through each page
+
     # TODO: figure out how to retrieve the number of pages in DRF
     count = r['count']
     page_size = len(r['results'])
 
-    jobs = []
+    measurements = []
     if page_size > 0:
         # ceiling integer
         num_pages = int(count/page_size) + (count % page_size > 0)
         for page in range(1, num_pages + 1):
-            jobs.extend(requests.get(api['jobs'],
-                                     params={'ci_dataset': selected_dataset,
-                                             'page': page}).json()['results'])
+            measurements.extend(requests.get(
+                api['measurements'],
+                params={'job__ci_dataset': selected_dataset,
+                        'metric': selected_metric,
+                        'page': page}).json()['results'])
 
-    # filter out failed jobs, i.e jobs that does not have
-    # measurements for each metric.
-    # TODO: this should be done by looking at the job status
-    jobs = [job for job in jobs
-            if len(job['measurements']) == n_metrics]
-
-    ci_id = [int(job['ci_id']) for job in jobs]
+    ci_ids = [int(m['ci_id']) for m in measurements]
 
     # 2016-08-10T05:22:37.700146Z
-    # after DM-7517 job api return is sorted by date
-    dates = [datetime.strptime(job['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
-             for job in jobs]
+    # after DM-7517 jobs return is sorted by date and the same is done for
+    # the measurements
+    dates = [datetime.strptime(m['date'], '%Y-%m-%dT%H:%M:%S.%fZ')
+             for m in measurements]
 
-    # create a flat list with all measurements
-    # [ {"metric" : "AM1", "value" : 3.0}, ... ]
-    measurements = []
+    values = [m['value'] for m in measurements]
 
-    for job in jobs:
-        for sublist in job['measurements']:
-            measurements.append(sublist)
+    ci_urls = [m['ci_url'] for m in measurements]
 
-    ci_url = [job['ci_url'] for job in jobs]
+    packages = [m['changed_packages'] for m in measurements]
 
-    return {'ci_id': ci_id, 'dates': dates,
-            'measurements': measurements, 'ci_url': ci_url}
+    # list of package names, name is the first element in the tuple
+    names = []
+    for i, sublist in enumerate(packages):
+        names.append([])
+        for package in sublist:
+            names[i].append(package[0])
+
+    # list of git urls, git_url is the third element in the tuple
+    git_urls = []
+    for i, sublist in enumerate(packages):
+        git_urls.append([])
+        for package in sublist:
+            git_urls[i].append(package[2])
+
+    return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
+            'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}

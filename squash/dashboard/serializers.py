@@ -20,6 +20,7 @@ class MetricSerializer(serializers.ModelSerializer):
                             request=request),
          }
 
+
 class MeasurementSerializer(serializers.ModelSerializer):
     """Serializer for `models.Measurement` objects.
 
@@ -29,7 +30,62 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('metric', 'value')
+        fields = ('metric', 'job', 'value')
+
+
+class MetricsAppSerializer(serializers.ModelSerializer):
+
+    ci_id = serializers.SerializerMethodField()
+    ci_url = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+
+    changed_packages = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Measurement
+        fields = ('value', 'ci_id', 'ci_url', 'date', "changed_packages")
+
+    def get_ci_id(self, obj):
+        return obj.job.ci_id
+
+    def get_ci_url(self, obj):
+        return obj.job.ci_url
+
+    def get_date(self, obj):
+        return obj.job.date
+
+    def get_changed_packages(self, obj):
+
+        current = set()
+        for pkg in VersionedPackage.objects.filter(job=obj.job):
+            current.add((pkg.name, pkg.git_commit, pkg.git_url))
+
+        try:
+            # jobs are sorted by date because ci_id is a char
+            # but we have to make sure it is a different ci_id
+            previous_job = obj.job.get_previous_by_date()
+
+            while obj.job.ci_id == previous_job.ci_id:
+                previous_job = previous_job.get_previous_by_date()
+
+        except:
+            # first job
+            previous_job = obj.job
+
+        previous = set()
+        for pkg in VersionedPackage.objects.filter(job=previous_job):
+            previous.add((pkg.name, pkg.git_commit, pkg.git_url))
+
+        # We are assuming that deviations in the metric measurements
+        # are caused by:
+        #
+        # - new packages present in the current job but not present in the
+        # previous one
+        # - packages present in the previous job but removed in the current one
+        # - packages present in the current job and in the previous job that
+        # changed (according to the git commit sha)
+
+        return current.difference(previous)
 
 
 class VersionedPackageSerializer(serializers.ModelSerializer):
