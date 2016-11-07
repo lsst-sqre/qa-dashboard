@@ -55,8 +55,7 @@ class Metrics(object):
 
         metric_select.on_change("value", self.on_metric_change)
 
-        if self.selected_dataset and self.selected_metric:
-            self.data = \
+        self.data = \
                 get_meas_by_dataset_and_metric(self.selected_dataset,
                                                self.selected_metric)
         self.update_data_source()
