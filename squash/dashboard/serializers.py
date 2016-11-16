@@ -30,7 +30,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('metric', 'job', 'value')
+        fields = ('metric', 'value')
 
 
 class MetricsAppSerializer(serializers.ModelSerializer):
