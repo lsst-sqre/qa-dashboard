@@ -142,12 +142,14 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
         for package in sublist:
             names[i].append(package[0])
 
-    # list of git urls, git_url is the third element in the tuple
+    # list of git urls, git package commit sha and base url are the second and
+    # third elements in the tuple
     git_urls = []
     for i, sublist in enumerate(packages):
         git_urls.append([])
         for package in sublist:
-            git_urls[i].append(package[2])
+            git_urls[i].append("{}/commit/{}".format(package[2].strip('.git'),
+                                                     package[1]))
 
     return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
