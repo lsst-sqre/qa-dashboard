@@ -3,7 +3,7 @@ from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource, HoverTool,\
                          Span, Label, BoxAnnotation
 from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
-                                 HTMLTemplateFormatter
+                                 DateFormatter, HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
 from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric
@@ -18,6 +18,7 @@ class Metrics(object):
 
         # app title
         self.title = Div(text="")
+
         # data contains values for the selected dataset and metric
         self.data = {}
 
@@ -26,6 +27,7 @@ class Metrics(object):
                                              'ci_urls': [], 'units': [],
                                              'names': [], 'git_urls': [],
                                              })
+
         self.compose_layout()
 
     def compose_layout(self):
@@ -56,17 +58,17 @@ class Metrics(object):
         metric_select.on_change("value", self.on_metric_change)
 
         self.data = \
-                get_meas_by_dataset_and_metric(self.selected_dataset,
-                                               self.selected_metric)
+            get_meas_by_dataset_and_metric(self.selected_dataset,
+                                           self.selected_metric)
         self.update_data_source()
 
         self.make_plot()
 
         title = "Code Changes"
 
-        description = "The table lists the jobs, the measurement values for " \
-                      "the selected data set and metric and the packages " \
-                      "that have changed with respect to the pevious job." \
+        description = "The table lists the metric measurements for each job " \
+                      "and the packages that have changed with respect "\
+                      "to the pevious job." \
                       "Tap on the Job ID or on the Package name for more " \
                       "information."
 
@@ -75,8 +77,10 @@ class Metrics(object):
         self.make_table()
 
         self.layout = row(widgetbox(dataset_select, metric_select, width=150),
-                          column(widgetbox(self.title, width=1000), self.plot,
-                                 widgetbox(table_title, width=1000), self.table))
+                          column(widgetbox(self.title, width=1000),
+                                 self.plot,
+                                 widgetbox(table_title, width=1000),
+                                 self.table))
 
     def on_dataset_change(self, attr, old, new):
         """Handle dataset select event, it reloads the measurements
@@ -210,6 +214,8 @@ class Metrics(object):
         the previous build
         """
 
+        x_formatter = DateFormatter(format="m/d/y")
+
         template = '<a href="<%= ci_urls %>"><%= value %></a>'
         ci_url_formatter = HTMLTemplateFormatter(template=template)
 
@@ -222,17 +228,21 @@ class Metrics(object):
         git_url_formatter = HTMLTemplateFormatter(template=template)
 
         columns = [
+            TableColumn(field="x", title="Date",
+                        formatter=x_formatter, width=100),
             TableColumn(field="ci_ids", title="Job ID",
-                        formatter=ci_url_formatter),
-            TableColumn(field="y", title="Value"),
+                        formatter=ci_url_formatter, width=100),
+            TableColumn(field="y", title="Value", width=100,
+                        sortable=False),
             TableColumn(field="names", title="Packages",
-                        formatter=git_url_formatter),
+                        formatter=git_url_formatter, width=600,
+                        sortable=False),
         ]
 
         self.table = DataTable(
             source=self.source, columns=columns, width=900, height=200,
             row_headers=True, fit_columns=False, scroll_to_selection=True,
-            editable=True
+            editable=False
         )
 
     def make_annotations(self, threshold):
