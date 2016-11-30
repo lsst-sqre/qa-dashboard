@@ -1,6 +1,6 @@
 import json
 from django.db import models
-from django.contrib.auth.models import User
+from django_mysql.models import JSONField, Model
 
 
 class Job(models.Model):
@@ -74,16 +74,11 @@ class Metric(models.Model):
         return self.metric
 
 
-class Measurement(models.Model):
+class Measurement(Model):
     """Measurement of a metric by a process"""
     metric = models.ForeignKey(Metric, null=False)
     job = models.ForeignKey(Job, null=False, related_name='measurements')
-    value = models.FloatField(blank=False)
+    value = JSONField()
 
     def __float__(self):
         return self.value
-
-
-class UserSession(models.Model):
-    user = models.ForeignKey(User, null=False)
-    bokehSessionId = models.CharField(max_length=64)
