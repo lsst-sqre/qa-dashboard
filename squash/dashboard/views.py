@@ -84,6 +84,18 @@ class MetricsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MetricsView, self).get_context_data(**kwargs)
-        bokeh_script = autoload_server(None, app_path="/metrics", url=bokeh_url)
-        context.update(bokeh_script=bokeh_script)
+
+        astrometry_bokeh_script = autoload_server(None,
+                                                  app_path="/astrometry",
+                                                  url=bokeh_url)
+        photometry_bokeh_script = autoload_server(None,
+                                                  app_path="/photometry",
+                                                  url=bokeh_url)
+        regression_bokeh_script = autoload_server(None,
+                                                  app_path="/regression",
+                                                  url=bokeh_url)
+
+        context.update(astrometry_bokeh_script=astrometry_bokeh_script,
+                       photometry_bokeh_script=photometry_bokeh_script,
+                       regression_bokeh_script=regression_bokeh_script)
         return context

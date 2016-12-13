@@ -10,12 +10,31 @@ height: 24px!important;
 </style>
 
 <div class="container">
-    <div class="row">
-        <div class="page-header">
-          <h1>Key Performance Metrics</h1>
-        </div>
+
+    <div class="page-header">
+      <h1>Key Performance Metrics</h1>
     </div>
-    <div class="panel-body plot">{{ bokeh_script|safe }}</div>
+
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#regression">Regression</a></li>
+        <li><a data-toggle="tab" href="#astrometry">Astrometry</a></li>
+        <li><a data-toggle="tab" href="#photometry">Photometry</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <br>
+            <div id="regression" class="tab-pane fade in active">
+                {{regression_bokeh_script|safe}} <br><br><br>
+            </div>
+
+            <div id="astrometry" class="tab-pane fade">
+                {{astrometry_bokeh_script|safe}} <br><br><br>
+            </div>
+            <div id="photometry" class="tab-pane fade">
+                {{photometry_bokeh_script|safe}} <br><br><br>
+            </div>
+    </div>
 </div>
+
 
 {% endblock content %}
