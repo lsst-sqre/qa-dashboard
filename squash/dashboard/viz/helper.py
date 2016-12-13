@@ -1,9 +1,35 @@
 import os
 import requests
+import numpy as np
+import json
+
+from bokeh.models import Span, Label
+
 from datetime import datetime
 
 SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
                                 'http://localhost:8000/dashboard/api')
+
+def add_threshold(plot, value, text, color):
+    """ Add span annotations
+    """
+
+    span =Span(location=value, dimension='width',
+               line_color=color, line_dash='dotted',
+               line_width=2)
+
+    label = Label(x=plot.plot_width-300, y=value+0.5, x_units='screen',
+                  y_units='data', text=text, text_color=color,
+                  text_font_size='11pt', text_font_style='normal',
+                  render_mode='canvas')
+
+    plot.add_layout(span)
+    plot.add_layout(label)
+
+def make_title(title, description):
+    """ Update page title
+    """
+    return """<left><h2>{}</h2>{}</left>""".format(title, description)
 
 
 def get_datasets():
@@ -153,3 +179,46 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
 
     return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
+
+
+
+def get_astrometry_data(snr_cut):
+    """Return test data to feed the astrometry app
+    """
+
+    with open('../tests/data/Cfht_output_r.json') as f:
+        data=json.load(f)['blobs'][0]['data']
+
+    snr = np.array(data['snr']['value'])
+    dist = np.array(data['dist']['value'])
+
+    index = np.array(data['snr']['value']) > snr_cut
+
+    selected_snr = snr[index]
+    selected_dist = dist[index]
+
+    return snr, dist, selected_snr, selected_dist
+
+def get_photometry_data(snr_cut):
+    """Return test data to feed the photometry app
+    """
+
+    with open('../tests/data/Cfht_output_r.json') as f:
+        data=json.load(f)['blobs'][0]['data']
+
+    snr = np.array(data['snr']['value'])
+    mag = np.array(data['mag']['value'])
+
+    # units here are in mmag
+    magrms = np.array(data['magrms']['value'])*1000
+    magerr = np.array(data['magerr']['value'])*1000
+
+    index = np.array(data['snr']['value']) > snr_cut
+
+    selected_snr = snr[index]
+    selected_mag = mag[index]
+    selected_magrms = magrms[index]
+    selected_magerr = magerr[index]
+
+    return snr, mag, magrms, magerr, selected_snr, selected_mag, selected_magrms, selected_magerr
+

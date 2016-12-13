@@ -6,7 +6,9 @@ from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
                                  DateFormatter, HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
-from helper import get_datasets, get_metrics, get_meas_by_dataset_and_metric
+
+from dashboard.viz.helper import get_datasets, get_metrics,\
+                                 get_meas_by_dataset_and_metric
 
 
 class Regression(object):
@@ -165,7 +167,7 @@ class Regression(object):
         # plot title and description must be updated each time
         # the dataset and metric changes
 
-        title = "Testing {} regression" \
+        title = "Testing {} regression " \
                 "using {} data set".format(self.selected_metric,
                                            self.selected_dataset)
 
@@ -204,7 +206,7 @@ class Regression(object):
 
         # set y-axis label
         self.plot.yaxis.axis_label = self.metrics['default'] +\
-            ' (' + self.metrics['units'][self.selected_metric] + ')'
+            ' [' + self.metrics['units'][self.selected_metric] + ']'
 
         # make annotations
         self.annotations = {}
@@ -330,4 +332,4 @@ class Regression(object):
 
 
 curdoc().add_root(Regression().layout)
-curdoc().title = "SQuaSH Regression Testing"
+curdoc().title = "SQuaSH"

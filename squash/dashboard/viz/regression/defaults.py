@@ -8,7 +8,7 @@ def init_time_series_plot(hover):
     """
     plot = Figure(
         plot_height=400,
-        plot_width=1000,
+        plot_width=900,
         sizing_mode="scale_width",
         toolbar_location="above",
         tools="pan, wheel_zoom, xbox_zoom, reset, tap",
