@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, TapTool, Span, Select, Label
+from bokeh.models import ColumnDataSource, TapTool, Span, Label
 from bokeh.models.widgets import Div
 from bokeh.models.glyphs import Circle
 from bokeh.plotting import figure
@@ -35,13 +35,12 @@ selected = ColumnDataSource(data={'snr': selected_snr, 'mag': selected_mag,
 
 # Configure Bokeh widgets
 
-metric = Select(title="Metric:",
-                options=['PA1'],
-                value='PA1')
 
-dataset = Select(title="Data Set:",
-                 options=['cfht'],
-                 value='cfht')
+metric = Div(text="<b>Metric:</b> PA1")
+
+dataset = Div(text="<b>Data Set:</b> cfht")
+
+job = Div(text="<b>Job ID:</b> test")
 
 # Scatter plot mag vs. magrms
 
@@ -64,8 +63,8 @@ partial_scatter1.nonselection_glyph = Circle(fill_color="#1f77b4",
 # Scatter plot mag  vs. snr
 
 plot2 = figure(toolbar_location=None, y_axis_location='right',
-               y_range=(0, 500), x_axis_label='r [mag]',
-               y_axis_label='SNR')
+               y_range=(0, 500), y_axis_label='SNR',
+               x_range=plot1.x_range, x_axis_label='r [mag]')
 
 scatter2 = plot2.circle('mag', 'snr', size=5, alpha=0.5,
                         source=full, color='lightgray')
@@ -144,12 +143,20 @@ partial_hist, _ = np.histogram(selected.data['magrms'],
 histogram = hist.quad(left=0, bottom=edges[:-1], top=edges[1:],
                       right=partial_hist)
 
+n = len(selected.data['magrms'])
+
 median = np.median(selected.data['magrms'])
 
 # Add annotations to the histograms
 
-label3 = Label(x=200, y=325, x_units='screen', y_units='screen',
-               text='Median = {:3.2f} mmag'.format(median),
+label4 = Label(x=200, y=325, x_units='screen', y_units='screen',
+               text="N = {}".format(n),
+               render_mode='css')
+
+hist.add_layout(label4)
+
+label3 = Label(x=200, y=300, x_units='screen', y_units='screen',
+               text="Median = {:3.2f} mmag".format(median),
                render_mode='css')
 
 hist.add_layout(label3)
@@ -186,7 +193,8 @@ def update(attr, old, new):
         partial_hist, _ = np.histogram(selected.data['magrms'], bins=edges)
         histogram.data_source.data['right'] = partial_hist
 
-        # Recompute median
+        # Recompute n, median
+        n = len(selected.data['magrms'])
         median = np.median(selected.data['magrms'])
 
         # Update spans
@@ -199,6 +207,7 @@ def update(attr, old, new):
         # Update labels
         label2.text = 'SNR > {:3.2f}'.format(np.min(selected.data['snr']))
         label3.text = 'Median = {:3.2f} mag'.format(median)
+        label4.text = 'N = {}'.format(n)
 
 
 scatter2.data_source.on_change('selected', update)
@@ -206,7 +215,8 @@ scatter2.data_source.on_change('selected', update)
 # Arrange plots and widgets layout
 
 layout = row(column(widgetbox(metric, width=150),
-                    widgetbox(dataset, width=150)),
+                    widgetbox(dataset, width=150),
+                    widgetbox(job, width=150)),
              column(widgetbox(title, width=1000),
                     row(hist, plot1), row(plot3, plot2)))
 

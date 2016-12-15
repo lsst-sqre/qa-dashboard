@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, TapTool, Span, Select, Label
+from bokeh.models import ColumnDataSource, TapTool, Span, Label
 from bokeh.models.widgets import Div
 from bokeh.models.glyphs import Circle
 from bokeh.plotting import figure
@@ -31,13 +31,12 @@ selected = ColumnDataSource(data={'snr': selected_snr, 'dist': selected_dist})
 
 # Configure Bokeh widgets
 
-metric = Select(title="Metric:",
-                options=['AM1'],
-                value='AM1')
+metric = Div(text="<b>Metric:</b> AM1")
 
-dataset = Select(title="Data Set:",
-                 options=['cfht'],
-                 value='cfht')
+dataset = Div(text="<b>Data Set:</b> cfht")
+
+job = Div(text="<b>Job ID:</b> test")
+
 
 # Scatter plot
 
@@ -66,7 +65,7 @@ span1 = Span(location=100, dimension='height', line_color='black',
 
 plot.add_layout(span1)
 
-label1 = Label(x=285, y=400, x_units='screen', y_units='screen',
+label1 = Label(x=285, y=425, x_units='screen', y_units='screen',
                text='SNR > {:3.2f}'.format(span1.location),
                render_mode='css')
 
@@ -95,6 +94,8 @@ partial_hist, _ = np.histogram(selected.data['dist'],
 histogram = hist.quad(left=0, bottom=edges[:-1], top=edges[1:],
                       right=partial_hist)
 
+n = len(selected.data['dist'])
+
 median = np.median(selected.data['dist'])
 
 rms = np.sqrt(np.mean(np.square(selected.data['dist'])))
@@ -107,10 +108,15 @@ label2 = Label(x=250, y=400, x_units='screen', y_units='screen',
 
 hist.add_layout(label2)
 
-label3 = Label(x=250, y=380, x_units='screen', y_units='screen',
+label3 = Label(x=250, y=375, x_units='screen', y_units='screen',
                text='RMS = {:3.2f} marcsec'.format(rms), render_mode='css')
 
 hist.add_layout(label3)
+
+label4 = Label(x=250, y=425, x_units='screen', y_units='screen',
+               text='N = {}'.format(n), render_mode='css')
+
+hist.add_layout(label4)
 
 span2 = Span(location=rms,
              dimension='width', line_color="black",
@@ -143,7 +149,8 @@ def update(attr, old, new):
                                        bins=edges)
         histogram.data_source.data['right'] = partial_hist
 
-        # Recompute median and rms
+        # Recompute n, median and rms
+        n = len(selected.data['dist'])
         median = np.median(selected.data['dist'])
         rms = np.sqrt(np.mean(np.square(selected.data['dist'])))
 
@@ -155,14 +162,17 @@ def update(attr, old, new):
         label1.text = 'SNR > {:3.2f}'.format(snr_cut)
         label2.text = 'Median = {:3.2f} marcsec'.format(median)
         label3.text = 'RMS = {:3.2f} marcsec'.format(rms)
+        label4.text = 'N = {}'.format(n)
 
 
 scatter.data_source.on_change('selected', update)
 
+
 # Arrange plots and widgets layout
 
 layout = row(column(widgetbox(metric, width=150),
-                    widgetbox(dataset, width=150)),
+                    widgetbox(dataset, width=150),
+                    widgetbox(job, width=150)),
              column(widgetbox(title, width=900),
                     row(hist, plot)))
 
