@@ -26,17 +26,15 @@ For example, using brew:
 3. Initialize the development database
 ```
   cd squash
-  
-  # In this step django will ask for a "superuser" password, it is used to access the django admin interface
-  # for convenience the user is set to $USER
-
-  export TEST_USER=$USER
-  export TEST_USER_EMAIL="$USER@example.com"
-
-  python manage.py createsuperuser --username $TEST_USER --email $TEST_USER_EMAIL
-
   python manage.py makemigrations
   python manage.py migrate
+
+  # In this step django will ask for a "superuser" password, it is used to access the django admin interface
+  
+  export TEST_USER=root
+  export TEST_USER_EMAIL="$TEST_USER@example.com"
+
+  python manage.py createsuperuser --username $TEST_USER --email $TEST_USER_EMAIL
 ```
 
 4. Initialize the app in development mode:
