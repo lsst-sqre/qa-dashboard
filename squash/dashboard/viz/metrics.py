@@ -60,27 +60,21 @@ class Metrics(object):
         self.data = \
             get_meas_by_dataset_and_metric(self.selected_dataset,
                                            self.selected_metric)
-        self.update_data_source()
+        if len(self.data['values']) > 0:
 
-        self.make_plot()
+            self.update_data_source()
+            self.make_plot()
+            self.make_table()
 
-        title = "Code Changes"
-
-        description = "The table lists the metric measurements for each job " \
-                      "and the packages that have changed with respect "\
-                      "to the pevious job." \
-                      "Tap on the Job ID or on the Package name for more " \
-                      "information."
-
-        table_title = Div(text=self.make_title(title, description))
-
-        self.make_table()
-
-        self.layout = row(widgetbox(dataset_select, metric_select, width=150),
-                          column(widgetbox(self.title, width=1000),
-                                 self.plot,
-                                 widgetbox(table_title, width=1000),
-                                 self.table))
+            self.layout = row(widgetbox(dataset_select, metric_select,
+                                        width=150),
+                              column(widgetbox(self.title, width=1000),
+                                     self.plot,
+                                     widgetbox(self.table_title, width=1000),
+                                     self.table))
+        else:
+            self.title = Div(text="<center><h4>No data to load.</h4></center>")
+            self.layout = row(widgetbox(self.title, width=1000))
 
     def on_dataset_change(self, attr, old, new):
         """Handle dataset select event, it reloads the measurements
@@ -171,7 +165,7 @@ class Metrics(object):
 
         self.title.text = self.make_title(title, description)
 
-    def make_title(self, title, description):
+    def make_title(self, title, description=""):
         """ Update page title with the selected metric
         """
 
@@ -213,6 +207,15 @@ class Metrics(object):
         """Make a data table to list the packages that changed with respect to
         the previous build
         """
+        title = "Code Changes"
+
+        description = "The table lists the metric measurements for each job " \
+                      "and the packages that have changed with respect "\
+                      "to the pevious job." \
+                      "Tap on the Job ID or on the Package name for more " \
+                      "information."
+
+        self.table_title = Div(text=self.make_title(title, description))
 
         x_formatter = DateFormatter(format="m/d/y")
 
