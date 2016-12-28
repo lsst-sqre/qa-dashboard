@@ -13,20 +13,25 @@ Create a virtualenv and install dependencies
   pip install -r requirements.txt
 ```
 
-2. Install MySQL 5.7+ or MariaDB 10.1+ and create the development database
+2. Install MySQL 5.7+ and create the development database
 
 For example, using brew:
 ```
-  brew install mysql  (or mariadb)
+  brew install mysql
   mysql.server start
+  mysql -u root -e "DROP DATABASE squash"
   mysql -u root -e "CREATE DATABASE squash"
 ```
 
 3. Initialize the development database
 ```
-  # The password created here is used to access the django admin interface
-  export TEST_USER=<user for the development database>
-  export TEST_USER_EMAIL="$TEST_USER@example.com"
+  cd squash
+  
+  # In this step django will ask for a "superuser" password, it is used to access the django admin interface
+  # for convenience the user is set to $USER
+
+  export TEST_USER=$USER
+  export TEST_USER_EMAIL="$USER@example.com"
 
   python manage.py createsuperuser --username $TEST_USER --email $TEST_USER_EMAIL
 
@@ -36,7 +41,6 @@ For example, using brew:
 
 4. Initialize the app in development mode:
 ```
-  cd squash
   ./run.sh
 ```
 
