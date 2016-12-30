@@ -73,7 +73,33 @@ def get_metrics():
             'default': default}
 
 
-def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
+def get_initial_page(page_size, num_pages, window):
+
+    # time window in hours corresponding to each page
+    # assuming measurements are done every 8 hours in CI
+
+    page_window = page_size * 8
+
+    if window == 'weeks':
+        initial_page = num_pages - int((24*7)/page_window)
+    elif window == 'months':
+        # maximum window of 3 months
+        initial_page = num_pages - int((24*30*3)/page_window)
+    elif window == 'years':
+        # maximum window of 1 year
+        initial_page = num_pages - int((24*365)/page_window)
+    else:
+        # everything
+        initial_page = 1
+
+    # Make sure we have enough pages for the input time window
+    if initial_page < 1:
+        initial_page = 1
+
+    return initial_page
+
+
+def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
     """ Get measurements for a given dataset and metric from the measurements
     api endpoint
 
@@ -114,7 +140,10 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
     if page_size > 0:
         # ceiling integer
         num_pages = int(count/page_size) + (count % page_size > 0)
-        for page in range(1, num_pages + 1):
+
+        initial_page = get_initial_page(page_size, num_pages, window)
+
+        for page in range(initial_page, num_pages + 1):
             measurements.extend(requests.get(
                 api['measurements'],
                 params={'job__ci_dataset': selected_dataset,
@@ -153,3 +182,37 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric):
 
     return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
+
+
+def to_str(value_or_list):
+    """Convert unicode or list to str
+    """
+
+    if isinstance(value_or_list, list):
+        value = value_or_list[0]
+    else:
+        value = value_or_list
+
+    if isinstance(value, bytes):
+        _str = value.decode('utf-8')
+    else:
+        _str = str(value)
+
+    return _str
+
+
+def get_args(doc, defaults):
+    """Return URL args from a bokeh document, if args are not present
+    return default values
+    """
+
+    tmp = doc().session_context.request.arguments
+    args = {}
+
+    for key, value in defaults:
+        if key in tmp:
+            args[key] = to_str(tmp[key])
+        else:
+            args[key] = to_str(value)
+
+    return args
