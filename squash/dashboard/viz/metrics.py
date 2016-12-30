@@ -109,7 +109,8 @@ class Metrics(object):
         """
 
         self.data = \
-            get_meas_by_dataset_and_metric(new, self.selected_metric)
+            get_meas_by_dataset_and_metric(new, self.selected_metric,
+                                           self.selected_window)
 
         self.selected_dataset = new
 
@@ -147,7 +148,8 @@ class Metrics(object):
         self.selected_metric = new
 
         self.data = \
-            get_meas_by_dataset_and_metric(self.selected_dataset, new)
+            get_meas_by_dataset_and_metric(self.selected_dataset, new,
+                                           self.selected_window)
 
         self.update_data_source()
 
