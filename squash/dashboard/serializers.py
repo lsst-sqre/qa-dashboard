@@ -35,6 +35,8 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
 class MetricsAppSerializer(serializers.ModelSerializer):
 
+    units = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
     ci_id = serializers.SerializerMethodField()
     ci_url = serializers.SerializerMethodField()
     date = serializers.SerializerMethodField()
@@ -43,7 +45,13 @@ class MetricsAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('value', 'ci_id', 'ci_url', 'date', "changed_packages")
+        fields = ('value', 'units', 'description', 'ci_id', 'ci_url', 'date', 'changed_packages')
+
+    def get_units(self, obj):
+        return obj.metric.units
+
+    def get_description(self, obj):
+        return obj.metric.description
 
     def get_ci_id(self, obj):
         return obj.job.ci_id

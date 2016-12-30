@@ -6,7 +6,8 @@ from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
                                  DateFormatter, HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
-from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric
+from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric,\
+                    get_args
 
 
 class Metrics(object):
@@ -35,8 +36,21 @@ class Metrics(object):
         select the dataset, the metric, a div for the title, a plot and a table
         """
 
+        # Load metrics and datasets
+        self.metrics = get_metrics()
         self.datasets = get_datasets()
-        self.selected_dataset = self.datasets['default']
+
+        # Get args from the app URL or use defaults
+        args = get_args(doc=curdoc,
+                        defaults=[('metric', self.metrics['default']),
+                                  ('job__ci_dataset', self.datasets['default']),
+                                  ('window', 'months')])
+
+        self.selected_dataset = args['job__ci_dataset']
+
+        self.selected_metric = args['metric']
+
+        self.selected_window = args['window']
 
         # dataset select widget
         dataset_select = Select(title="Data Set:",
@@ -44,9 +58,6 @@ class Metrics(object):
                                 options=self.datasets['datasets'], width=100)
 
         dataset_select.on_change("value", self.on_dataset_change)
-
-        self.metrics = get_metrics()
-        self.selected_metric = self.metrics['default']
 
         # thresholds are used to make plot annotations
         self.configure_thresholds()
@@ -59,14 +70,16 @@ class Metrics(object):
 
         self.data = \
             get_meas_by_dataset_and_metric(self.selected_dataset,
-                                           self.selected_metric)
+                                           self.selected_metric,
+                                           self.selected_window)
         if len(self.data['values']) > 0:
 
             self.update_data_source()
             self.make_plot()
             self.make_table()
 
-            self.layout = row(widgetbox(dataset_select, metric_select,
+            self.layout = row(widgetbox(dataset_select,
+                                        metric_select,
                                         width=150),
                               column(widgetbox(self.title, width=1000),
                                      self.plot,
@@ -96,7 +109,8 @@ class Metrics(object):
         """
 
         self.data = \
-            get_meas_by_dataset_and_metric(new, self.selected_metric)
+            get_meas_by_dataset_and_metric(new, self.selected_metric,
+                                           self.selected_window)
 
         self.selected_dataset = new
 
@@ -134,7 +148,8 @@ class Metrics(object):
         self.selected_metric = new
 
         self.data = \
-            get_meas_by_dataset_and_metric(self.selected_dataset, new)
+            get_meas_by_dataset_and_metric(self.selected_dataset, new,
+                                           self.selected_window)
 
         self.update_data_source()
 
