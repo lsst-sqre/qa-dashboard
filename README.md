@@ -13,19 +13,20 @@ Create a virtualenv and install dependencies
   pip install -r requirements.txt
 ```
 
-2. Install MySQL 5.7+ and create the development database
+2. Install MariaDB 10.1+ and create the development database
 
 For example, using brew:
 ```
-  brew install mysql
+  brew install mariadb
   mysql.server start
-  mysql -u root -e "DROP DATABASE squash"
-  mysql -u root -e "CREATE DATABASE squash"
 ```
 
 3. Initialize the development database
 ```
   cd squash
+  mysql -u root -e "DROP DATABASE squash"
+  mysql -u root -e "CREATE DATABASE squash"
+
   python manage.py makemigrations
   python manage.py migrate
 
@@ -42,16 +43,16 @@ For example, using brew:
   ./run.sh
 ```
 
-5. On another terminal, load test data and initialize the bokeh server
+5.  In another terminal execute the tests for DM-8890
 ```
   cd qa-dashboard
   source env/bin/activate
   cd squash
-  python manage.py loaddata initial_data
-  python manage.py loaddata test_data
-  ./bokeh.sh
+  export TEST_USER=root
+  export TEST_PASSWORD=<set to the passwd created in the previous step>
+  py.test
 ```
 
-Then access the application at http://localhost:8000
+For this particular ticket we are interested in checking the measurement API endpoint http://localhost:8000/dashboard/api/measurements/
 
 See also http://sqr-009.lsst.io/en/latest/
