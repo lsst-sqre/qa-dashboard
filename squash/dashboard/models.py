@@ -1,6 +1,6 @@
 import json
 from django.db import models
-from django_mysql.models import JSONField, Model
+from django_mysql.models import DynamicField, Model
 
 
 class Job(models.Model):
@@ -78,7 +78,7 @@ class Measurement(Model):
     """Measurement of a metric by a process"""
     metric = models.ForeignKey(Metric, null=False)
     job = models.ForeignKey(Job, null=False, related_name='measurements')
-    value = JSONField()
+    value = DynamicField(spec={'test1': str})
 
     def __float__(self):
         return self.value
