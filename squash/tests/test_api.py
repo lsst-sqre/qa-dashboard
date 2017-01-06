@@ -35,7 +35,7 @@ def test_auth():
 
 
 def test_post_metric():
-    """ Test Metric endpoint
+    """ Test metrics endpoint
     """
     metric = {
                 "metric": "test1",
@@ -52,6 +52,44 @@ def test_post_metric():
 
     r = requests.post(api['metrics'], json=metric,
                       auth=(TEST_USER, TEST_PASSWD))
+    assert r.status_code == 201
+
+    r.close()
+
+def test_post_job():
+    """ Test jobs endpoint
+    """
+
+    job = {
+
+        "ci_id": "1",
+        "ci_name": "validate_drp",
+        "ci_dataset": "cfht",
+        "ci_label": "centos-7",
+        "ci_url": "https://ci.lsst.codes/job/validate_drp/1/",
+        "status": 0,
+        "measurements": [
+            {
+                "metric": "test1",
+                "value": {"test1": "test1"}
+            },
+        ],
+        "packages": [
+            {
+                "name": "afw",
+                "git_url": "http://github.com/lsst/afw.git",
+                "git_commit": "a7aa450f60375473c010319e56db559457b43f9a",
+                "git_branch": "master",
+                "build_version": "b1"
+            }
+        ]
+    }
+
+    r = requests.get(TEST_API_URL)
+    api = r.json()
+
+    r = requests.post(api['jobs'], json=job, auth=(TEST_USER, TEST_PASSWD))
+
     assert r.status_code == 201
 
     r.close()
