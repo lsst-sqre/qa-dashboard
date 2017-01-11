@@ -30,7 +30,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('metric', 'value')
+        fields = ('metric', 'value', 'data')
 
 
 class MetricsAppSerializer(serializers.ModelSerializer):
@@ -45,7 +45,8 @@ class MetricsAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('value', 'units', 'description', 'ci_id', 'ci_url', 'date', 'changed_packages')
+        fields = ('value', 'units', 'description', 'ci_id', 'ci_url', 'date',
+                  'changed_packages')
 
     def get_units(self, obj):
         return obj.metric.units
