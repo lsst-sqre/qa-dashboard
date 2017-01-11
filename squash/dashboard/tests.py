@@ -3,7 +3,8 @@ from .models import Job, Metric, Measurement
 
 
 class JSONFieldTests(TestCase):
-    """ Test insertion of JSON supported data types, uses fixtures to load initial data
+    """ Test insertion of JSON supported data types, uses fixtures to
+        load initial data
     """
     fixtures = ['initial_data', 'test_data']
 
@@ -54,7 +55,7 @@ class JSONFieldTests(TestCase):
 
     def test_array(self):
 
-        expected = ['an','array']
+        expected = ['an', 'array']
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
                                    data=expected)
         actual = Measurement.objects.latest('id').data
