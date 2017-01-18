@@ -22,9 +22,8 @@ class Job(models.Model):
     ci_url = models.URLField(null=False, help_text='Jenkins job URL')
     status = models.SmallIntegerField(default=STATUS_OK,
                                       help_text='Job status, 0=OK, 1=Failed')
-
-    def get_jobs(self):
-        pass
+    data = JSONField(null=True, blank=True, default=None,
+                     help_text='Data produced by the job.')
 
     def __str__(self):
         return self.ci_id
@@ -60,27 +59,32 @@ class VersionedPackage(models.Model):
 
 
 class Metric(models.Model):
-    """Metric information"""
-    metric = models.CharField(max_length=16, primary_key=True)
-    description = models.TextField()
-    # some metrics may not have units
-    units = models.CharField(max_length=16, blank=True)
-    condition = models.CharField(max_length=2, blank=False, default='<')
-    minimum = models.FloatField(null=False)
-    design = models.FloatField(null=False)
-    stretch = models.FloatField(null=False)
-    user = models.FloatField(null=False)
+    """Metric definition.
+    """
+    metric = models.CharField(max_length=16, primary_key=True,
+                              help_text='Metric name')
+    # some metrics may not have unit
+    unit = models.CharField(max_length=16, null=True, blank=True, default="")
+    description = models.TextField(help_text='Metric description')
+    operator = models.CharField(max_length=2, blank=False, default='<')
+    # some metrics may not have associated parameters
+    parameters = JSONField(null=True, blank=True, default=None,
+                           help_text='Parameters used to define the metric')
+    specs = JSONField(help_text='Metric specification', default=None)
+    reference = JSONField(help_text='Metric reference', default=None)
 
     def __str__(self):
         return self.metric
 
 
 class Measurement(models.Model):
-    """Measurement of a metric by a job"""
+    """Measurement of a metric by a job.
+    """
     metric = models.ForeignKey(Metric, null=False)
     job = models.ForeignKey(Job, null=False, related_name='measurements')
-    value = models.FloatField()
-    data = JSONField(null=True, blank=True, default=None)
+    value = models.FloatField(help_text='Metric scalar measurement')
+    metadata = JSONField(null=True, blank=True, default=None,
+                         help_text='Measurement metadata')
 
     def __float__(self):
         return self.value
