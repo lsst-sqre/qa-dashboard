@@ -54,8 +54,8 @@ class MetricsAppSerializer(serializers.ModelSerializer):
         # fields exposed to the measurements endpoint, we want to reduce
         # the amount of data returned here as much as possible to minimize
         # the app loading time
-        fields = ('metric', 'value', 'unit', 'description', 'ci_id', 'ci_url', 'date',
-                  'changed_packages')
+        fields = ('metric', 'value', 'unit', 'description', 'ci_id', 'ci_url',
+                  'date', 'changed_packages')
 
     def get_unit(self, obj):
         return obj.metric.unit
