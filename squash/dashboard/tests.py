@@ -6,7 +6,7 @@ class JSONFieldTests(TestCase):
     """ Test insertion of JSON supported data types, uses fixtures to
         load initial data
     """
-    fixtures = ['initial_data', 'test_data']
+    fixtures = ['test_data']
 
     def setUp(self):
         self.job = Job.objects.latest('id')
