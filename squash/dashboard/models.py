@@ -1,6 +1,6 @@
 import json
 from django.db import models
-from django_mysql.models import JSONField, Model
+from jsonfield import JSONField
 
 
 class Job(models.Model):
@@ -63,7 +63,8 @@ class Metric(models.Model):
     """Metric information"""
     metric = models.CharField(max_length=16, primary_key=True)
     description = models.TextField()
-    units = models.CharField(max_length=16)
+    # some metrics may not have units
+    units = models.CharField(max_length=16, blank=True)
     condition = models.CharField(max_length=2, blank=False, default='<')
     minimum = models.FloatField(null=False)
     design = models.FloatField(null=False)
@@ -74,11 +75,12 @@ class Metric(models.Model):
         return self.metric
 
 
-class Measurement(Model):
-    """Measurement of a metric by a process"""
+class Measurement(models.Model):
+    """Measurement of a metric by a job"""
     metric = models.ForeignKey(Metric, null=False)
     job = models.ForeignKey(Job, null=False, related_name='measurements')
-    value = JSONField()
+    value = models.FloatField()
+    data = JSONField(null=True, blank=True, default=None)
 
     def __float__(self):
         return self.value
