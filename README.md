@@ -35,11 +35,11 @@ For example, using brew:
   export TEST_USER_EMAIL="$TEST_USER@example.com"
 
   python manage.py createsuperuser --username $TEST_USER --email $TEST_USER_EMAIL
-  python manage.py check
 ```
   
 4. Execute tests (optional)
 ```
+  python manage.py check
   python -Wi manage.py test dashboard.tests
 ```
 
@@ -54,7 +54,6 @@ For example, using brew:
 
   source env/bin/activate
   cd squash
-  python manage.py loaddata initial_data
   python manage.py loaddata test_data
   ./bokeh.sh
 ```
