@@ -6,8 +6,8 @@ from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
                                  DateFormatter, HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
-from service import get_datasets, get_metrics, get_meas_by_dataset_and_metric,\
-                    get_args
+from service import get_datasets, get_metrics, get_specs, \
+                    get_meas_by_dataset_and_metric, get_args
 
 
 class Metrics(object):
@@ -49,6 +49,9 @@ class Metrics(object):
         self.selected_dataset = args['job__ci_dataset']
 
         self.selected_metric = args['metric']
+
+        # get specifications for the selected metric
+        self.specs = get_specs(self.selected_metric)
 
         self.selected_window = args['window']
 
@@ -135,18 +138,22 @@ class Metrics(object):
         /widgets.html#userguide-interaction-widgets
         """
 
+        self.selected_metric = new
+        self.configure_thresholds()
+
         # update annotations for the metric thresholds
         for t in self.annotations:
             self.annotations[t]['span'].location =\
-                self.thresholds[t]['values'][new]
-            self.annotations[t]['label'].y = self.thresholds[t]['values'][new]
+                self.thresholds[t]['values']
+            self.annotations[t]['label'].y = self.thresholds[t]['values']
+
+
+        # update specs
+        self.specs = get_specs(self.selected_metric)
 
         # update plot labels
-        self.plot.yaxis.axis_label = new\
-            + '(' + self.metrics['units'][new] + ')'
-
-        self.selected_metric = new
-
+        self.plot.yaxis.axis_label = new \
+                                     + '(' + self.specs['unit'] + ')'
         self.data = \
             get_meas_by_dataset_and_metric(self.selected_dataset, new,
                                            self.selected_window)
@@ -160,7 +167,7 @@ class Metrics(object):
 
         # all attributes of a datasource must have the same size
         size = len(self.data['dates'])
-        units = [self.metrics['units'][self.selected_metric]] * size
+        units = [self.specs['unit']] * size
 
         self.source.data = dict(x=self.data['dates'],
                                 y=self.data['values'],
@@ -176,7 +183,7 @@ class Metrics(object):
         title = "{} for {} dataset".format(self.selected_metric,
                                            self.selected_dataset)
 
-        description = self.metrics['description'][self.selected_metric]
+        description = self.specs['description']
 
         self.title.text = self.make_title(title, description)
 
@@ -209,7 +216,7 @@ class Metrics(object):
 
         # set y-axis label
         self.plot.yaxis.axis_label = self.metrics['default'] +\
-            ' (' + self.metrics['units'][self.selected_metric] + ')'
+            ' (' + self.specs['unit'] + ')'
 
         # make annotations
         self.annotations = {}
@@ -267,7 +274,7 @@ class Metrics(object):
         """Annotate the metric thresholds
         """
 
-        location = threshold['values'][self.selected_metric]
+        location = threshold['values']
         color = threshold['color']
 
         span = Span(location=location, dimension='width',
@@ -330,15 +337,15 @@ class Metrics(object):
         """Thresholds have values for each metric, a text and color
         """
         self.thresholds = {}
-        self.thresholds['minimum'] = {'values': self.metrics['minimum'],
+        self.thresholds['minimum'] = {'values': self.specs['minimum'],
                                       'text': 'Minimum',
                                       'color': 'red'}
 
-        self.thresholds['design'] = {'values': self.metrics['design'],
+        self.thresholds['design'] = {'values': self.specs['design'],
                                      'text': 'Design',
                                      'color': 'blue'}
 
-        self.thresholds['stretch'] = {'values': self.metrics['stretch'],
+        self.thresholds['stretch'] = {'values': self.specs['stretch'],
                                       'text': 'Stretch',
                                       'color': 'green'}
 

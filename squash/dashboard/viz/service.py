@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 from datetime import datetime
 
@@ -11,11 +12,10 @@ def get_datasets():
     Returns
     -------
     datasets : list
-        list of datasets obtained
+        list of dataset names
     default : str
-        the default dataset is the first element
-        of the list if it exists otherwise it
-        assumes None
+        the default dataset is the first available,
+        None otherwise
     """
     api = requests.get(SQUASH_API_URL).json()
     datasets = requests.get(api['datasets']).json()
@@ -28,49 +28,90 @@ def get_datasets():
 
 
 def get_metrics():
-    """Get a list of metrics from the API
+    """Get the list of metrics
     Returns
     -------
     metrics : list
-        list of metrics obtained
-    minimnum : list
-        list of dicts where the key is the metric name
-        and the value is its minimum specification
-    design : list
-        list of dicts, where the key is the metric name and the
-        value is its design specification
-    stretch : list
-        list of dicts, where the key is the metric name and the
-        value is its stretch goal
-    units : list
-        list of ditcs, where the key is the metric name and the
-        value is its unit
+        list of metric names
     default : str
-        the default metric is the first element of the metrics
-        list if it exists otherwhise it assumes None
+        the default metric is the firstavailable,
+        None otherwise
     """
+
     api = requests.get(SQUASH_API_URL).json()
     r = requests.get(api['metrics']).json()
 
-    metrics = [x['metric'] for x in r['results']]
+    metrics = [m['metric'] for m in r['results']]
 
-    minimum = {}
-    design = {}
-    stretch = {}
-    units = {}
-    desc = {}
     default = None
-    if metrics:
-        minimum = dict(zip(metrics, [x['minimum'] for x in r['results']]))
-        design = dict(zip(metrics, [x['design'] for x in r['results']]))
-        stretch = dict(zip(metrics, [x['stretch'] for x in r['results']]))
-        units = dict(zip(metrics, [x['units'] for x in r['results']]))
-        desc = dict(zip(metrics, [x['description'] for x in r['results']]))
+    if len(metrics)>0:
         default = metrics[0]
 
-    return {'metrics': metrics, 'minimum': minimum, 'design': design,
-            'stretch': stretch, 'units': units, 'description': desc,
-            'default': default}
+    return {'metrics': metrics, 'default': default}
+
+def get_value(specs, name):
+    """ Unpack metric specification
+    Parameters
+    ----------
+    specs: dict
+        a dict with keys value and name
+    name: str
+        the spec name
+    Return
+    ------
+    value: float or None
+        value of the spec if exists, None otherwise
+    """
+
+    value = None
+
+    for s in specs:
+        if s['name'] == name:
+            value = s['value']
+            break
+
+    return value
+
+def get_specs(name):
+    """Get metric specifications from its name
+    Parameters
+    ----------
+    name: str
+        a valid metric name
+    Returns
+    -------
+    unit: str
+        metric unit
+    description:
+        metric description
+    minimum: float
+        metric minimum specification
+    design: float
+        metric design specification
+    stretch: float
+        metric stretch goal
+    """
+
+    api = requests.get(SQUASH_API_URL).json()
+    r = requests.get(api['metrics']).json()
+
+    unit = str()
+    description = str()
+    specs = []
+
+    for m in r['results']:
+        if m['metric'] == name:
+            unit = m['unit']
+            description = m['description']
+            specs = eval(m['specs'])
+            break
+
+    minimum = get_value(specs, 'minimum')
+    design = get_value(specs, 'design')
+    stretch = get_value(specs, 'stretch')
+
+    return {'unit': unit, 'description': description,
+            'minimum': minimum, 'design': design, 'stretch': stretch}
 
 
 def get_initial_page(page_size, num_pages, window):
