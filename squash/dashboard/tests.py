@@ -6,7 +6,7 @@ class JSONFieldTests(TestCase):
     """ Test insertion of JSON supported data types, uses fixtures to
         load initial data
     """
-    fixtures = ['initial_data', 'test_data']
+    fixtures = ['test_data']
 
     def setUp(self):
         self.job = Job.objects.latest('id')
@@ -16,8 +16,8 @@ class JSONFieldTests(TestCase):
 
         expected = "a string"
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
@@ -25,15 +25,15 @@ class JSONFieldTests(TestCase):
 
         expected = 1
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
         expected = 1.0
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
@@ -41,15 +41,15 @@ class JSONFieldTests(TestCase):
 
         expected = True
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
         expected = False
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
@@ -57,8 +57,8 @@ class JSONFieldTests(TestCase):
 
         expected = ['an', 'array']
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
@@ -66,8 +66,8 @@ class JSONFieldTests(TestCase):
 
         expected = {'an': 'object'}
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
@@ -75,8 +75,8 @@ class JSONFieldTests(TestCase):
 
         expected = ""
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)
 
@@ -84,7 +84,7 @@ class JSONFieldTests(TestCase):
 
         expected = None
         Measurement.objects.create(job=self.job, metric=self.metric, value=0,
-                                   data=expected)
-        actual = Measurement.objects.latest('id').data
+                                   metadata=expected)
+        actual = Measurement.objects.latest('id').metadata
 
         self.assertEqual(actual, expected)

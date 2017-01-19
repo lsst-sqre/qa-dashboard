@@ -5,13 +5,15 @@ from django.db import transaction
 
 
 class MetricSerializer(serializers.ModelSerializer):
+    """Serializer for `models.Metric` objects.
+    """
 
     links = serializers.SerializerMethodField()
 
     class Meta:
         model = Metric
-        fields = ('metric', 'description', 'units', 'condition',
-                  'minimum', 'design', 'stretch', 'user', 'links',)
+        fields = ('metric', 'unit', 'description', 'operator',
+                  'parameters', 'specs', 'reference', 'links',)
 
     def get_links(self, obj):
         request = self.context['request']
@@ -30,12 +32,15 @@ class MeasurementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('metric', 'value', 'data')
+        fields = ('metric', 'value', 'metadata',)
 
 
 class MetricsAppSerializer(serializers.ModelSerializer):
+    """Serializer for the measurements endpoint consumed
+    by the metrics app.
+    """
 
-    units = serializers.SerializerMethodField()
+    unit = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     ci_id = serializers.SerializerMethodField()
     ci_url = serializers.SerializerMethodField()
@@ -45,11 +50,15 @@ class MetricsAppSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Measurement
-        fields = ('value', 'units', 'description', 'ci_id', 'ci_url', 'date',
-                  'changed_packages')
 
-    def get_units(self, obj):
-        return obj.metric.units
+        # fields exposed to the measurements endpoint, we want to reduce
+        # the amount of data returned here as much as possible to minimize
+        # the app loading time
+        fields = ('metric', 'value', 'unit', 'description', 'ci_id', 'ci_url',
+                  'date', 'changed_packages')
+
+    def get_unit(self, obj):
+        return obj.metric.unit
 
     def get_description(self, obj):
         return obj.metric.description
@@ -63,6 +72,7 @@ class MetricsAppSerializer(serializers.ModelSerializer):
     def get_date(self, obj):
         return obj.job.date
 
+    # get the different in packages from current and previous jobs
     def get_changed_packages(self, obj):
 
         current = set()
@@ -71,14 +81,14 @@ class MetricsAppSerializer(serializers.ModelSerializer):
 
         try:
             # jobs are sorted by date because ci_id is a char
-            # but we have to make sure it is a different ci_id
             previous_job = obj.job.get_previous_by_date()
 
+            # make sure previous is not the current ci_id
             while obj.job.ci_id == previous_job.ci_id:
                 previous_job = previous_job.get_previous_by_date()
 
         except:
-            # first job
+            # in case we dont have a previous job
             previous_job = obj.job
 
         previous = set()
@@ -121,7 +131,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = ('ci_id', 'ci_name', 'ci_dataset', 'ci_label', 'date',
-                  'ci_url', 'status', 'measurements', 'packages',
+                  'ci_url', 'status', 'blobs', 'measurements', 'packages',
                   'links')
 
     # Override the create method to create nested objects from request data
