@@ -12,14 +12,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='metric',
-            old_name='condition',
-            new_name='operator',
-        ),
         migrations.RemoveField(
             model_name='measurement',
             name='data',
+        ),
+        migrations.RemoveField(
+            model_name='metric',
+            name='condition',
         ),
         migrations.RemoveField(
             model_name='metric',
@@ -43,18 +42,23 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='job',
-            name='data',
-            field=jsonfield.fields.JSONField(help_text='Data produced by the job.', null=True, blank=True, default=None),
+            name='blobs',
+            field=jsonfield.fields.JSONField(help_text='Data blobs produced by the job.', default=None, null=True, blank=True),
         ),
         migrations.AddField(
             model_name='measurement',
             name='metadata',
-            field=jsonfield.fields.JSONField(help_text='Measurement metadata', null=True, blank=True, default=None),
+            field=jsonfield.fields.JSONField(help_text='Measurement metadata', default=None, null=True, blank=True),
+        ),
+        migrations.AddField(
+            model_name='metric',
+            name='operator',
+            field=models.CharField(max_length=2, help_text='Operator used to test measurement value against metric specification', default='<'),
         ),
         migrations.AddField(
             model_name='metric',
             name='parameters',
-            field=jsonfield.fields.JSONField(help_text='Parameters used to define the metric', null=True, blank=True, default=None),
+            field=jsonfield.fields.JSONField(help_text='Parameters used to define the metric', default=None, null=True, blank=True),
         ),
         migrations.AddField(
             model_name='metric',
@@ -64,12 +68,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='metric',
             name='specs',
-            field=jsonfield.fields.JSONField(help_text='Metric specification', default=None),
+            field=jsonfield.fields.JSONField(help_text='Array of metric specification', default=None),
         ),
         migrations.AddField(
             model_name='metric',
             name='unit',
-            field=models.CharField(null=True, blank=True, max_length=16, default=''),
+            field=models.CharField(max_length=16, help_text='Metric unit, astropy compatible string', default='', null=True, blank=True),
         ),
         migrations.AlterField(
             model_name='measurement',
@@ -84,6 +88,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='metric',
             name='metric',
-            field=models.CharField(help_text='Metric name', primary_key=True, max_length=16, serialize=False),
+            field=models.CharField(serialize=False, help_text='Metric name', max_length=16, primary_key=True),
         ),
     ]

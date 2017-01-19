@@ -131,7 +131,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = ('ci_id', 'ci_name', 'ci_dataset', 'ci_label', 'date',
-                  'ci_url', 'status', 'data', 'measurements', 'packages',
+                  'ci_url', 'status', 'blobs', 'measurements', 'packages',
                   'links')
 
     # Override the create method to create nested objects from request data

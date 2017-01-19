@@ -22,8 +22,8 @@ class Job(models.Model):
     ci_url = models.URLField(null=False, help_text='Jenkins job URL')
     status = models.SmallIntegerField(default=STATUS_OK,
                                       help_text='Job status, 0=OK, 1=Failed')
-    data = JSONField(null=True, blank=True, default=None,
-                     help_text='Data produced by the job.')
+    blobs = JSONField(null=True, blank=True, default=None,
+                     help_text='Data blobs produced by the job.')
 
     def __str__(self):
         return self.ci_id
@@ -64,14 +64,17 @@ class Metric(models.Model):
     metric = models.CharField(max_length=16, primary_key=True,
                               help_text='Metric name')
     # some metrics may not have unit
-    unit = models.CharField(max_length=16, null=True, blank=True, default="")
+    unit = models.CharField(max_length=16, null=True, blank=True, default='',
+                            help_text='Metric unit, astropy compatible string')
     description = models.TextField(help_text='Metric description')
-    operator = models.CharField(max_length=2, blank=False, default='<')
+    operator = models.CharField(max_length=2, blank=False, default='<',
+                                help_text='Operator used to test measurement value'
+                                          ' against metric specification')
     # some metrics may not have associated parameters
     parameters = JSONField(null=True, blank=True, default=None,
                            help_text='Parameters used to define the metric')
-    specs = JSONField(help_text='Metric specification', default=None)
-    reference = JSONField(help_text='Metric reference', default=None)
+    specs = JSONField(default=None, help_text='Array of metric specification')
+    reference = JSONField(default=None, help_text='Metric reference')
 
     def __str__(self):
         return self.metric
