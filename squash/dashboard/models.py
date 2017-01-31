@@ -1,6 +1,6 @@
 import json
 from django.db import models
-from jsonfield import JSONField
+from json_field import JSONField
 
 
 class Job(models.Model):
@@ -23,7 +23,8 @@ class Job(models.Model):
     status = models.SmallIntegerField(default=STATUS_OK,
                                       help_text='Job status, 0=OK, 1=Failed')
     blobs = JSONField(null=True, blank=True, default=None,
-                     help_text='Data blobs produced by the job.')
+                      help_text='Data blobs produced by the job.',
+                      decoder=None)
 
     def __str__(self):
         return self.ci_id
@@ -68,13 +69,17 @@ class Metric(models.Model):
                             help_text='Metric unit, astropy compatible string')
     description = models.TextField(help_text='Metric description')
     operator = models.CharField(max_length=2, blank=False, default='<',
-                                help_text='Operator used to test measurement value'
-                                          ' against metric specification')
+                                help_text='Operator used to test measurement'
+                                          'value against metric specification')
     # some metrics may not have associated parameters
     parameters = JSONField(null=True, blank=True, default=None,
-                           help_text='Parameters used to define the metric')
-    specs = JSONField(default=None, help_text='Array of metric specification')
-    reference = JSONField(default=None, help_text='Metric reference')
+                           help_text='Parameters used to define the metric',
+                           decoder=None)
+    specs = JSONField(null=True, blank=True, default=None,
+                      help_text='Array of metric specification',
+                      decoder=None)
+    reference = JSONField(null=True, blank=True, default=None,
+                          help_text='Metric reference', decoder=None)
 
     def __str__(self):
         return self.metric
@@ -87,7 +92,8 @@ class Measurement(models.Model):
     job = models.ForeignKey(Job, null=False, related_name='measurements')
     value = models.FloatField(help_text='Metric scalar measurement')
     metadata = JSONField(null=True, blank=True, default=None,
-                         help_text='Measurement metadata')
+                         help_text='Measurement metadata',
+                         decoder=None)
 
     def __float__(self):
         return self.value

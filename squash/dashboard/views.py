@@ -1,6 +1,6 @@
 from django.views.generic import ListView
 from rest_framework import authentication, permissions,\
-    viewsets, filters, response
+    viewsets, filters, response, status
 from .forms import JobFilter
 from .models import Job, Metric, Measurement
 from .serializers import JobSerializer, MetricSerializer, MetricsAppSerializer
@@ -61,6 +61,16 @@ class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
     queryset = Metric.objects.order_by('metric')
     serializer_class = MetricSerializer
+
+    def create(self, request, *args, **kwargs):
+        # many=True for adding multiple items at once
+        serializer = self.get_serializer(data=request.data,
+                                         many=isinstance(request.data, list))
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data,
+                                 status=status.HTTP_201_CREATED)
+
     search_fields = ('metric', )
     ordering_fields = ('metric',)
 
@@ -84,6 +94,7 @@ class MetricsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(MetricsView, self).get_context_data(**kwargs)
-        bokeh_script = autoload_server(None, app_path="/metrics", url=bokeh_url)
+        bokeh_script = autoload_server(None, app_path="/metrics",
+                                       url=bokeh_url)
         context.update(bokeh_script=bokeh_script)
         return context
