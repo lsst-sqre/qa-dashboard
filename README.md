@@ -23,8 +23,8 @@ For example, using brew:
 ```
   cd squash
 
-  mysql -u root -e "DROP DATABASE squash"
-  mysql -u root -e "CREATE DATABASE squash"
+  mysql -u root -e "DROP DATABASE qadb"
+  mysql -u root -e "CREATE DATABASE qadb"
 
   python manage.py makemigrations
   python manage.py migrate
