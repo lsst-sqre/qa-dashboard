@@ -10,7 +10,7 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME' : 'squash',
+        'NAME' : 'qadb',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',

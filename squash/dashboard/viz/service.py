@@ -98,17 +98,21 @@ def get_specs(name):
     unit = str()
     description = str()
     specs = []
+    minimum = None
+    design = None
+    stretch = None
 
     for m in r['results']:
         if m['metric'] == name:
             unit = m['unit']
             description = m['description']
-            specs = eval(m['specs'])
+            specs = eval(str(m['specs']))
             break
 
-    minimum = get_value(specs, 'minimum')
-    design = get_value(specs, 'design')
-    stretch = get_value(specs, 'stretch')
+    if specs:
+        minimum = get_value(specs, 'minimum')
+        design = get_value(specs, 'design')
+        stretch = get_value(specs, 'stretch')
 
     return {'unit': unit, 'description': description,
             'minimum': minimum, 'design': design, 'stretch': stretch}
