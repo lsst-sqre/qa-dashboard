@@ -1,11 +1,15 @@
-from django.views.generic import ListView
+from django.shortcuts import render
+from django.conf import settings
 from rest_framework import authentication, permissions,\
     viewsets, filters, response, status
+
+from bokeh.embed import autoload_server
+
 from .forms import JobFilter
 from .models import Job, Metric, Measurement
-from .serializers import JobSerializer, MetricSerializer, MetricsAppSerializer
-from bokeh.embed import autoload_server
-from django.conf import settings
+from .serializers import JobSerializer, MetricSerializer,\
+    RegressionSerializer, MeasurementSerializer, \
+    BlobSerializer
 
 try:
     bokeh_url = settings.BOKEH_URL
@@ -48,11 +52,11 @@ class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
     ordering_fields = ('date',)
 
 
-class MetricsAppViewSet(DefaultsMixin, viewsets.ModelViewSet):
-    """ API endpoint consumed by the metrics app"""
+class MeasurementViewSet(DefaultsMixin, viewsets.ModelViewSet):
+    """ API endpoint consumed by the metric regression app"""
 
     queryset = Measurement.objects.order_by('job__date')
-    serializer_class = MetricsAppSerializer
+    serializer_class = RegressionSerializer
     filter_fields = ('job__ci_dataset', 'metric')
 
 
@@ -83,18 +87,99 @@ class DatasetViewSet(DefaultsMixin, viewsets.ViewSet):
         return response.Response(datasets)
 
 
-class HomeView(ListView):
-    model = Metric
-    template_name = 'dashboard/index.html'
+# TODO: reduce code duplication in AMxViewSet and PAxViewSet
+
+class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
+    """API endpoint for listing AMx app data"""
+
+    def list(self, request):
+
+        # TODO: filter by job id
+        job = Job.objects.latest('pk')
+        blob_serializer = BlobSerializer(job)
+
+        # TODO: filter by metric
+        measurement = Measurement.objects.filter(job=job)[0]
+        measurement_serializer = MeasurementSerializer(measurement)
+
+        metadata = {}
+        metadata['metadata'] = eval(measurement_serializer.data['metadata'])
+
+        data = {}
+
+        # datasets used in this measurement
+        blobs = metadata['metadata'].pop('blobs')
+
+        matched_dataset_id = blobs['matchedDataset']
+        astrom_model_id = blobs['astromModel']
+
+        # given the dataset ids, get the actual data
+        # from the Job model
+        data_blobs = eval(blob_serializer.data['blobs'])
+
+        for blob in data_blobs:
+            if blob['identifier'] == matched_dataset_id:
+                data['matchedDataset'] = blob['data']
+            elif blob['identifier'] == astrom_model_id:
+                data['astromModel'] = blob['data']
+
+        return response.Response({**data, **metadata})
 
 
-class MetricsView(ListView):
-    model = Metric
-    template_name = 'dashboard/metrics.html'
+class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
+    """API endpoint for listing PAx app data"""
 
-    def get_context_data(self, **kwargs):
-        context = super(MetricsView, self).get_context_data(**kwargs)
-        bokeh_script = autoload_server(None, app_path="/metrics",
-                                       url=bokeh_url)
-        context.update(bokeh_script=bokeh_script)
-        return context
+    def list(self, request):
+
+        # TODO: filter by job id
+        job = Job.objects.latest('pk')
+        blob_serializer = BlobSerializer(job)
+
+        # TODO: filter by metric
+        measurement = Measurement.objects.filter(job=job)[7]
+        measurement_serializer = MeasurementSerializer(measurement)
+
+        metadata = {}
+        metadata['metadata'] = eval(measurement_serializer.data['metadata'])
+
+        data = {}
+
+        # datasets used in this measurement
+        blobs = metadata['metadata'].pop('blobs')
+
+        # data blob identifier for this measurement
+        matched_dataset_id = blobs['matchedDataset']
+        photom_model_id = blobs['photomModel']
+
+        # given the dataset ids, get the actual data
+        # from the Job model
+        data_blobs = eval(blob_serializer.data['blobs'])
+
+        for blob in data_blobs:
+            if blob['identifier'] == matched_dataset_id:
+                data['matchedDataset'] = blob['data']
+            elif blob['identifier'] == photom_model_id:
+                data['photomModel'] = blob['data']
+
+        return response.Response({**data, **metadata})
+
+
+def embed_bokeh(request, bokeh_app):
+    """Render the requested app from the bokeh server"""
+
+    # http://bokeh.pydata.org/en/0.12.3/docs/reference/embed.html
+
+    # TODO: test if bokeh server is reachable
+    bokeh_script = autoload_server(None, app_path="/{}".format(bokeh_app),
+                                   url=bokeh_url)
+
+    context = {'bokeh_script': bokeh_script,
+               'bokeh_app': bokeh_app}
+
+    return render(request, "dashboard/embed_bokeh.html", context)
+
+
+def home(request):
+    """Render the home page"""
+
+    return render(request, 'dashboard/index.html')
