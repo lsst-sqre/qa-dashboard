@@ -25,26 +25,27 @@
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li {% if name == 'index' %}class="active"{% endif %}>
+                        <li>
                             <a href="/">HOME</a>
                         </li>
-                        <li {% if name == 'Dashboard' %}class="active"{% endif %}>
-                            <a href="dashboard">KPMs</a>
+                        <li>
+                            <a href="/dashboard/regression/">KPMs</a>
                         </li>
-                        <li {% if name == 'Dashboard' %}class="active"{% endif %}>
-                            <a href="dashboard/api">API</a>
+                        <li>
+                            <a href="/dashboard/api/">API</a>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li {% if name == 'help' %}class="active"{% endif %}>
-                            <a ref="">Help</a>
+                        <li>
+                            <a href="http://sqr-009.lsst.io/en/latest/">Help</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
         {% endblock %}
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
         <footer>
             <hr>
             <div class="container">
