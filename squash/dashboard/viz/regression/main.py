@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource, HoverTool,\
@@ -7,11 +8,18 @@ from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
                                  HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
-from dashboard.viz.helper import get_datasets, get_metrics, get_specs, \
-                    get_meas_by_dataset_and_metric, get_url_args
 
 SQUASH_BASE_URL = os.environ.get('SQUASH_BASE_URL',
                                  'http://localhost:8000')
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
+
+sys.path.append(os.path.join(BASE_DIR))
+
+from helper import get_datasets, get_metrics, get_specs, \
+                   get_meas_by_dataset_and_metric, get_url_args
 
 
 class Metrics(object):

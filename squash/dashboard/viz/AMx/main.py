@@ -1,3 +1,5 @@
+import os
+import sys
 import numpy as np
 
 from bokeh.io import curdoc
@@ -7,10 +9,14 @@ from bokeh.models.glyphs import Circle
 from bokeh.plotting import figure
 from bokeh.layouts import row, column, widgetbox
 
-from dashboard.viz.helper import get_app_data, \
-    add_span_annotation, \
-    get_url_args
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
 
+sys.path.append(os.path.join(BASE_DIR))
+
+from helper import get_app_data, add_span_annotation, \
+                   get_url_args
 
 # URL args and default values for this app
 
