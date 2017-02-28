@@ -102,26 +102,28 @@ class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
         measurement = Measurement.objects.filter(job=job)[0]
         measurement_serializer = MeasurementSerializer(measurement)
 
-        metadata = {}
-        metadata['metadata'] = eval(measurement_serializer.data['metadata'])
-
         data = {}
+        metadata = {}
 
-        # datasets used in this measurement
-        blobs = metadata['metadata'].pop('blobs')
+        if measurement_serializer.data['metadata']:
 
-        matched_dataset_id = blobs['matchedDataset']
-        astrom_model_id = blobs['astromModel']
+            metadata['metadata'] = eval(measurement_serializer.data['metadata'])
 
-        # given the dataset ids, get the actual data
-        # from the Job model
-        data_blobs = eval(blob_serializer.data['blobs'])
+            # datasets used in this measurement
+            blobs = metadata['metadata'].pop('blobs')
 
-        for blob in data_blobs:
-            if blob['identifier'] == matched_dataset_id:
-                data['matchedDataset'] = blob['data']
-            elif blob['identifier'] == astrom_model_id:
-                data['astromModel'] = blob['data']
+            matched_dataset_id = blobs['matchedDataset']
+            astrom_model_id = blobs['astromModel']
+
+            # given the dataset ids, get the actual data
+            # from the Job model
+            data_blobs = eval(blob_serializer.data['blobs'])
+
+            for blob in data_blobs:
+                if blob['identifier'] == matched_dataset_id:
+                    data['matchedDataset'] = blob['data']
+                elif blob['identifier'] == astrom_model_id:
+                    data['astromModel'] = blob['data']
 
         return response.Response({**data, **metadata})
 
@@ -136,30 +138,32 @@ class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
         blob_serializer = BlobSerializer(job)
 
         # TODO: filter by metric
-        measurement = Measurement.objects.filter(job=job)[7]
+        measurement = Measurement.objects.filter(job=job)[0]
         measurement_serializer = MeasurementSerializer(measurement)
 
-        metadata = {}
-        metadata['metadata'] = eval(measurement_serializer.data['metadata'])
-
         data = {}
+        metadata = {}
 
-        # datasets used in this measurement
-        blobs = metadata['metadata'].pop('blobs')
+        if measurement_serializer.data['metadata']:
 
-        # data blob identifier for this measurement
-        matched_dataset_id = blobs['matchedDataset']
-        photom_model_id = blobs['photomModel']
+            metadata['metadata'] = eval(measurement_serializer.data['metadata'])
 
-        # given the dataset ids, get the actual data
-        # from the Job model
-        data_blobs = eval(blob_serializer.data['blobs'])
+            # datasets used in this measurement
+            blobs = metadata['metadata'].pop('blobs')
 
-        for blob in data_blobs:
-            if blob['identifier'] == matched_dataset_id:
-                data['matchedDataset'] = blob['data']
-            elif blob['identifier'] == photom_model_id:
-                data['photomModel'] = blob['data']
+            # data blob identifier for this measurement
+            matched_dataset_id = blobs['matchedDataset']
+            photom_model_id = blobs['photomModel']
+
+            # given the dataset ids, get the actual data
+            # from the Job model
+            data_blobs = eval(blob_serializer.data['blobs'])
+
+            for blob in data_blobs:
+                if blob['identifier'] == matched_dataset_id:
+                    data['matchedDataset'] = blob['data']
+                elif blob['identifier'] == photom_model_id:
+                    data['photomModel'] = blob['data']
 
         return response.Response({**data, **metadata})
 
