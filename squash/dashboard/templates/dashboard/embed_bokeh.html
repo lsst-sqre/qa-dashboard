@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Fix for bokeh vs. bootstrap css issue -->
+<style>
+.bk-root .bk-slick-header-column.bk-ui-state-default {
+height: 24px!important;
+}
+</style>
+
+<div class="container">
+    <div class="page-header">
+
+        {% if "regression" in bokeh_app %}
+            <h1>Key Performance Metrics</h1>
+        {% else %}
+            <a class="btn btn-default"
+               href="/dashboard/regression/"
+               role="button">Back</a>
+        {% endif %}
+    </div>
+
+    <div class="container">
+            {{bokeh_script|safe}}
+    </div>
+
+</div>
+
+{% endblock content %}

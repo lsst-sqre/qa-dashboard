@@ -35,9 +35,9 @@ class MeasurementSerializer(serializers.ModelSerializer):
         fields = ('metric', 'value', 'metadata',)
 
 
-class MetricsAppSerializer(serializers.ModelSerializer):
+class RegressionSerializer(serializers.ModelSerializer):
     """Serializer for the measurements endpoint consumed
-    by the metrics app.
+    by the Regression app.
     """
 
     unit = serializers.SerializerMethodField()
@@ -121,6 +121,13 @@ class VersionedPackageSerializer(serializers.ModelSerializer):
                   'build_version')
 
 
+class BlobSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Job
+        fields = ('blobs',)
+
+
 class JobSerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()
@@ -151,6 +158,7 @@ class JobSerializer(serializers.ModelSerializer):
         return job
 
     def get_links(self, obj):
+
         request = self.context['request']
         return {
             'self': reverse('job-detail', kwargs={'pk': obj.pk},

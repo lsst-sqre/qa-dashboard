@@ -1,10 +1,14 @@
 import os
-import json
+import pandas as pd
 import requests
 from datetime import datetime
+from furl import furl
+
+from bokeh.models import Span, Label
+
 
 SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
-                                'http://localhost:8000/dashboard/api')
+                                'http://localhost:8000/dashboard/api/')
 
 
 def get_datasets():
@@ -22,7 +26,10 @@ def get_datasets():
 
     default = None
     if datasets:
-        default = datasets[0]
+        if 'cfht' in datasets:
+            default = 'cfht'
+        else:
+            default = datasets[0]
 
     return {'datasets': datasets, 'default': default}
 
@@ -44,10 +51,14 @@ def get_metrics():
     metrics = [m['metric'] for m in r['results']]
 
     default = None
-    if len(metrics)>0:
-        default = metrics[0]
+    if len(metrics) > 0:
+        if 'AM1' in metrics:
+            default = 'AM1'
+        else:
+            default = metrics[0]
 
     return {'metrics': metrics, 'default': default}
+
 
 def get_value(specs, name):
     """ Unpack metric specification
@@ -71,6 +82,7 @@ def get_value(specs, name):
             break
 
     return value
+
 
 def get_specs(name):
     """Get metric specifications from its name
@@ -229,35 +241,58 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
 
 
-def to_str(value_or_list):
-    """Convert unicode or list to str
+def get_url_args(doc, defaults):
+    """Return URL args from a django request to the bokeh app, the
+    args are in the Referer URL in the HTTPServerRequest headers.
+
+    Default args are defined in each bokeh app and are used if
+    not present in the Referer URL
+
     """
+    # e.g. http://localhost:800/regression?window=weeks&
+    # job__ci_dataset=cfht&metric=PA1
 
-    if isinstance(value_or_list, list):
-        value = value_or_list[0]
-    else:
-        value = value_or_list
-
-    if isinstance(value, bytes):
-        _str = value.decode('utf-8')
-    else:
-        _str = str(value)
-
-    return _str
-
-
-def get_args(doc, defaults):
-    """Return URL args from a bokeh document, if args are not present
-    return default values
-    """
-
-    tmp = doc().session_context.request.arguments
-    args = {}
-
-    for key, value in defaults:
-        if key in tmp:
-            args[key] = to_str(tmp[key])
-        else:
-            args[key] = to_str(value)
-
+    args = defaults
+    s = doc().session_context
+    if s:
+        if s.request:
+            tmp = furl(s.request.headers['Referer']).args
+            for key in tmp:
+                if key in args:
+                    args[key] = tmp[key]
     return args
+
+
+def get_app_data(bokeh_app, metric=None, ci_id=None, ci_dataset=None):
+    """Returns a panda dataframe with data consumed by the bokeh apps"""
+
+    api = requests.get(SQUASH_API_URL).json()
+
+    # e.g. http://localhost:8000/AMx?ci_id=1&job__ci_dataset=cfht&metric=AM1
+
+    r = requests.get(api[bokeh_app],
+                     params={'metric': metric,
+                             'ci_id': ci_id,
+                             'ci_dataset': ci_dataset}).json()
+
+    data = pd.DataFrame.from_dict(r, orient='index').transpose()
+
+    return data
+
+
+def add_span_annotation(plot, value, text, color):
+    """ Add span annotation, used for metric specification
+    thresholds.
+    """
+
+    span = Span(location=value, dimension='width',
+                line_color=color, line_dash='dotted',
+                line_width=2)
+
+    label = Label(x=plot.plot_width-300, y=value+0.5, x_units='screen',
+                  y_units='data', text=text, text_color=color,
+                  text_font_size='11pt', text_font_style='normal',
+                  render_mode='canvas')
+
+    plot.add_layout(span)
+    plot.add_layout(label)
