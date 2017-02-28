@@ -6,7 +6,7 @@ from rest_framework import authentication, permissions,\
 from bokeh.embed import autoload_server
 
 from .forms import JobFilter
-from .models import Job, Metric, Measurement
+from .models import Job, Metric, Measurement, VersionedPackage
 from .serializers import JobSerializer, MetricSerializer,\
     RegressionSerializer, MeasurementSerializer, \
     BlobSerializer
@@ -186,4 +186,20 @@ def embed_bokeh(request, bokeh_app):
 def home(request):
     """Render the home page"""
 
-    return render(request, 'dashboard/index.html')
+    n_metrics = len(Metric.objects.all())
+    job = Job.objects.latest('pk')
+    n_packages = len(VersionedPackage.objects.filter(job=job))
+    n_jobs = len(Job.objects.all())
+    n_meas = len(Measurement.objects.all())
+
+    datasets = Job.objects.values_list('ci_dataset', flat=True).distinct()
+    last = Job.objects.latest('pk').date
+
+    context = { "n_metrics": n_metrics,
+                "n_packages": n_packages,
+                "n_jobs": n_jobs,
+                "n_meas": n_meas,
+                "datasets": ", ".join(datasets),
+                "last": last }
+
+    return render(request, 'dashboard/index.html', context)

@@ -22,8 +22,7 @@
             SQuaSH can be used and extended by LSST DM
             to preserve the code and knowledge developed during LSST construction.
             </p>
-        </div>
-        <div class="col-md-6">
+            <br>
             <h2>How to Use</h2>
             <p>
             Start by looking at Key Performance Metrics computed by
@@ -40,7 +39,25 @@
                 </a>
             </p>
         </div>
-    </div>
+        <div class="col-md-6">
+            <br>
+            <br>
+            <ul class="list-group">
+                <li class="list-group-item">Last CI job on
+                    <b>{{last}}</b> </li>
+                  <li class="list-group-item"># of metrics being monitored:
+                      <span class="badge">{{n_metrics}}</span></li>
+                  <li class="list-group-item"># of LSST packages being monitored:
+                      <span class="badge">{{n_packages}}</span></li>
+                  <li class="list-group-item"># of CI jobs:
+                      <span class="badge">{{n_jobs}}</span></li>
+                  <li class="list-group-item"># of measurements:
+                      <span class="badge">{{n_meas}}</span></li>
+                  <li class="list-group-item">Supported datasets:
+                      <span class="badge">{{datasets}}</span></li>
+            </ul>
+         </div>
+      </div>
 </div>
 
 {% endblock %}
