@@ -11,6 +11,25 @@ SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
                                 'http://localhost:8000/dashboard/api/')
 
 
+def get_endpoint_urls(api_url=SQUASH_API_URL):
+    """Lookup endpoint URL(s).
+    """
+
+    r = requests.get(api_url)
+    r.raise_for_status()
+
+    return r.json()
+
+
+def get_endpoint(name):
+    api = get_endpoint_urls()
+
+    r = requests.get(api[name])
+    r.raise_for_status()
+
+    return r.json()
+
+
 def get_datasets():
     """Get a list of datasets from the API
     Returns
@@ -21,8 +40,7 @@ def get_datasets():
         the default dataset is the first available,
         None otherwise
     """
-    api = requests.get(SQUASH_API_URL).json()
-    datasets = requests.get(api['datasets']).json()
+    datasets = get_endpoint('datasets')
 
     default = None
     if datasets:
@@ -45,8 +63,7 @@ def get_metrics():
         None otherwise
     """
 
-    api = requests.get(SQUASH_API_URL).json()
-    r = requests.get(api['metrics']).json()
+    r = get_endpoint('metrics')
 
     metrics = [m['metric'] for m in r['results']]
 
@@ -104,8 +121,7 @@ def get_specs(name):
         metric stretch goal
     """
 
-    api = requests.get(SQUASH_API_URL).json()
-    r = requests.get(api['metrics']).json()
+    r = get_endpoint('metrics')
 
     unit = str()
     description = str()
@@ -179,19 +195,22 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
     ci_url : list
         list of URLs for the jobs in the CI system
     """
-    api = requests.get(SQUASH_API_URL).json()
+    api = get_endpoint_urls()
 
     # http://localhost:8000/dashboard/api/measurements/?job__ci_dataset=cfht&metric=AM1
 
     r = requests.get(api['measurements'],
                      params={'job__ci_dataset': selected_dataset,
-                             'metric': selected_metric}).json()
+                             'metric': selected_metric})
+    r.raise_for_status()
+
+    results = r.json()
 
     # results are paginated, walk through each page
 
     # TODO: figure out how to retrieve the number of pages in DRF
-    count = r['count']
-    page_size = len(r['results'])
+    count = results['count']
+    page_size = len(results['results'])
 
     measurements = []
     if page_size > 0:
@@ -201,11 +220,13 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
         initial_page = get_initial_page(page_size, num_pages, window)
 
         for page in range(initial_page, num_pages + 1):
-            measurements.extend(requests.get(
+            r = requests.get(
                 api['measurements'],
                 params={'job__ci_dataset': selected_dataset,
                         'metric': selected_metric,
-                        'page': page}).json()['results'])
+                        'page': page})
+            r.raise_for_status()
+            measurements.extend(r.json()['results'])
 
     ci_ids = [int(m['ci_id']) for m in measurements]
 
@@ -266,16 +287,18 @@ def get_url_args(doc, defaults):
 def get_app_data(bokeh_app, metric=None, ci_id=None, ci_dataset=None):
     """Returns a panda dataframe with data consumed by the bokeh apps"""
 
-    api = requests.get(SQUASH_API_URL).json()
+    api = get_endpoint_urls()
 
     # e.g. http://localhost:8000/AMx?ci_id=1&job__ci_dataset=cfht&metric=AM1
 
     r = requests.get(api[bokeh_app],
                      params={'metric': metric,
                              'ci_id': ci_id,
-                             'ci_dataset': ci_dataset}).json()
+                             'ci_dataset': ci_dataset})
+    r.raise_for_status()
+    results = r.json()
 
-    data = pd.DataFrame.from_dict(r, orient='index').transpose()
+    data = pd.DataFrame.from_dict(results, orient='index').transpose()
 
     return data
 
