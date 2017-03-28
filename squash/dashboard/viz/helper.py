@@ -10,6 +10,7 @@ from bokeh.models import Span, Label
 SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
                                 'http://localhost:8000/dashboard/api/')
 
+
 def get_endpoint_urls(api_url=SQUASH_API_URL):
     """Lookup endpoint URL(s).
     """
@@ -261,7 +262,6 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
 
 
-
 def get_url_args(doc, defaults):
     """Return URL args recovered from django_full_path cookie in
     the bokeh request header.
@@ -282,6 +282,7 @@ def get_url_args(doc, defaults):
                     args[key] = tmp[key]
 
     return args
+
 
 def get_app_data(bokeh_app, metric=None, ci_id=None, ci_dataset=None):
     """Returns a panda dataframe with data consumed by the bokeh apps"""

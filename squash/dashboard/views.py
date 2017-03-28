@@ -110,7 +110,8 @@ class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
 
         if measurement_serializer.data['metadata']:
 
-            metadata['metadata'] = eval(measurement_serializer.data['metadata'])
+            metadata['metadata'] = \
+                eval(measurement_serializer.data['metadata'])
 
             # datasets used in this measurement
             blobs = metadata['metadata'].pop('blobs')
@@ -149,7 +150,8 @@ class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
 
         if measurement_serializer.data['metadata']:
 
-            metadata['metadata'] = eval(measurement_serializer.data['metadata'])
+            metadata['metadata'] =\
+                eval(measurement_serializer.data['metadata'])
 
             # datasets used in this measurement
             blobs = metadata['metadata'].pop('blobs')
@@ -203,11 +205,11 @@ def home(request):
     datasets = Job.objects.values_list('ci_dataset', flat=True).distinct()
     last = Job.objects.latest('pk').date
 
-    context = { "n_metrics": n_metrics,
-                "n_packages": n_packages,
-                "n_jobs": n_jobs,
-                "n_meas": n_meas,
-                "datasets": ", ".join(datasets),
-                "last": last }
+    context = {"n_metrics": n_metrics,
+               "n_packages": n_packages,
+               "n_jobs": n_jobs,
+               "n_meas": n_meas,
+               "datasets": ", ".join(datasets),
+               "last": last}
 
     return render(request, 'dashboard/index.html', context)
