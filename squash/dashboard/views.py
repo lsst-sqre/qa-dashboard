@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.http import HttpResponse
+from django.template import loader
+
 from django.conf import settings
 from rest_framework import authentication, permissions,\
     viewsets, filters, response, status
@@ -177,10 +180,15 @@ def embed_bokeh(request, bokeh_app):
     bokeh_script = autoload_server(None, app_path="/{}".format(bokeh_app),
                                    url=bokeh_url)
 
+    template = loader.get_template('dashboard/embed_bokeh.html')
+
     context = {'bokeh_script': bokeh_script,
                'bokeh_app': bokeh_app}
 
-    return render(request, "dashboard/embed_bokeh.html", context)
+    response = HttpResponse(template.render(context, request))
+    response.set_cookie('django_full_path', request.get_full_path())
+
+    return response
 
 
 def home(request):

@@ -10,7 +10,6 @@ from bokeh.models import Span, Label
 SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
                                 'http://localhost:8000/dashboard/api/')
 
-
 def get_endpoint_urls(api_url=SQUASH_API_URL):
     """Lookup endpoint URL(s).
     """
@@ -262,27 +261,27 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
 
 
+
 def get_url_args(doc, defaults):
-    """Return URL args from a django request to the bokeh app, the
-    args are in the Referer URL in the HTTPServerRequest headers.
+    """Return URL args recovered from django_full_path cookie in
+    the bokeh request header.
 
-    Default args are defined in each bokeh app and are used if
-    not present in the Referer URL
-
+    Default args are overwritten by the new value if they are
+    present.
     """
-    # e.g. http://localhost:800/regression?window=weeks&
-    # job__ci_dataset=cfht&metric=PA1
 
     args = defaults
-    s = doc().session_context
-    if s:
-        if s.request:
-            tmp = furl(s.request.headers['Referer']).args
+    r = doc().session_context.request
+    if r:
+        if 'django_full_path' in r.cookies:
+            tmp = furl(r.cookies['django_full_path'].value).args
             for key in tmp:
+                # update default values if arg is present
+                # in the URL
                 if key in args:
                     args[key] = tmp[key]
-    return args
 
+    return args
 
 def get_app_data(bokeh_app, metric=None, ci_id=None, ci_dataset=None):
     """Returns a panda dataframe with data consumed by the bokeh apps"""
