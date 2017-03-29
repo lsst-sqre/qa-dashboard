@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.http import HttpResponse
+from django.template import loader
+
 from django.conf import settings
 from rest_framework import authentication, permissions,\
     viewsets, filters, response, status
@@ -107,7 +110,8 @@ class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
 
         if measurement_serializer.data['metadata']:
 
-            metadata['metadata'] = eval(measurement_serializer.data['metadata'])
+            metadata['metadata'] = \
+                eval(measurement_serializer.data['metadata'])
 
             # datasets used in this measurement
             blobs = metadata['metadata'].pop('blobs')
@@ -146,7 +150,8 @@ class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
 
         if measurement_serializer.data['metadata']:
 
-            metadata['metadata'] = eval(measurement_serializer.data['metadata'])
+            metadata['metadata'] =\
+                eval(measurement_serializer.data['metadata'])
 
             # datasets used in this measurement
             blobs = metadata['metadata'].pop('blobs')
@@ -177,10 +182,15 @@ def embed_bokeh(request, bokeh_app):
     bokeh_script = autoload_server(None, app_path="/{}".format(bokeh_app),
                                    url=bokeh_url)
 
+    template = loader.get_template('dashboard/embed_bokeh.html')
+
     context = {'bokeh_script': bokeh_script,
                'bokeh_app': bokeh_app}
 
-    return render(request, "dashboard/embed_bokeh.html", context)
+    response = HttpResponse(template.render(context, request))
+    response.set_cookie('django_full_path', request.get_full_path())
+
+    return response
 
 
 def home(request):
@@ -195,11 +205,11 @@ def home(request):
     datasets = Job.objects.values_list('ci_dataset', flat=True).distinct()
     last = Job.objects.latest('pk').date
 
-    context = { "n_metrics": n_metrics,
-                "n_packages": n_packages,
-                "n_jobs": n_jobs,
-                "n_meas": n_meas,
-                "datasets": ", ".join(datasets),
-                "last": last }
+    context = {"n_metrics": n_metrics,
+               "n_packages": n_packages,
+               "n_jobs": n_jobs,
+               "n_meas": n_meas,
+               "datasets": ", ".join(datasets),
+               "last": last}
 
     return render(request, 'dashboard/index.html', context)
