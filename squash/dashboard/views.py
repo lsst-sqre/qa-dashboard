@@ -97,10 +97,10 @@ class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
 
     def list(self, request):
         ci_id = Job.objects.latest('pk').ci_id
-        ci_dataset = Job.objects.latest('pk').ci_dataset
+        job__ci_dataset = Job.objects.latest('pk').ci_dataset
         metric = Metric.objects.latest('pk').metric
         snr_cut = '100'
-        result = {'ci_id': ci_id, 'ci_dataset': ci_dataset,
+        result = {'ci_id': ci_id, 'job__ci_dataset': job__ci_dataset,
                   'metric': metric, 'snr_cut': snr_cut}
 
         return response.Response(result)
