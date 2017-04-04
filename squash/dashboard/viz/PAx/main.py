@@ -15,61 +15,67 @@ BASE_DIR = os.path.dirname(
 
 sys.path.append(os.path.join(BASE_DIR))
 
-from helper import get_app_data, add_span_annotation, \
-                   get_url_args
+from api_helper import get_url_args, get_data_as_pandas_df
+from bokeh_helper import add_span_annotation
 
-# TODO: defaults should be the same for all apps
+# App name
+BOKEH_APP = 'PAx'
 
-args = get_url_args(curdoc, defaults={'metric': 'PA1',
-                                      'job__ci_dataset': 'cfht',
-                                      'ci_id': 817,
-                                      'snr_cut': 100})
-# App title
-title = Div(text="""<h2>{} diagnostic plot for {} dataset
-                    from job ID {}</h2>""".format(args['metric'],
-                                                  args['job__ci_dataset'],
-                                                  args['ci_id']))
+# Get data
+args = get_url_args(curdoc, defaults={'metric': 'PA1'})
+data = get_data_as_pandas_df(endpoint=BOKEH_APP,
+                             params=args)
 
-data = get_app_data(bokeh_app='PAx',
-                    ci_id=args['ci_id'],
-                    metric=args['metric'],
-                    ci_dataset=args['job__ci_dataset'])
+# Configure bokeh data sources with the full and
+# selected datasets
+snr = data['matchedDataset']['snr']
+mag = data['matchedDataset']['mag']
 
-# Get the data
-snr = data['matchedDataset']['snr']['value']
-mag = data['matchedDataset']['mag']['value']
+# values are in mmag
+magrms = data['matchedDataset']['magrms']
+magerr = data['matchedDataset']['magerr']
 
-# TODO: use astropy quantity for doing these conversions
-magrms = np.array(data['matchedDataset']['magrms']['value'])*1000
-magerr = np.array(data['matchedDataset']['magerr']['value'])*1000
-
-# Configure bokeh column data sources
-full = ColumnDataSource(data={'snr': snr, 'mag': mag, 'magrms': magrms,
-                              'magerr': magerr})
-
+# TODO: Use astropy quantity for doing these conversions
+full = ColumnDataSource(data={'snr': snr['value'], 'mag': mag['value'],
+                              'magrms': np.array(magrms['value'])*1000,
+                              'magerr': np.array(magerr['value'])*1000})
 
 # Selected data based on snr_cut
-index = np.array(snr) > float(args['snr_cut'])
+index = np.array(snr['value']) > float(args['snr_cut'])
 
-selected_snr = np.array(snr)[index]
-selected_mag = np.array(mag)[index]
-selected_magrms = np.array(magrms)[index]
-selected_magerr = np.array(magerr)[index]
+selected_snr = np.array(snr['value'])[index]
+selected_mag = np.array(mag['value'])[index]
+selected_magrms = np.array(magrms['value'])[index]*1000
+selected_magerr = np.array(magerr['value'])[index]*1000
 
 selected = ColumnDataSource(data={'snr': selected_snr,
                                   'mag': selected_mag,
                                   'magrms': selected_magrms,
                                   'magerr': selected_magerr})
+# Configure bokeh widgets
+
+# App title
+title = Div(text="""<h2>{metric} diagnostic plot for {job__ci_dataset} dataset from
+                    job ID {ci_id}</h2>""".format_map(args))
+
+# Ranges used in the bokeh widgets
+MIN_SNR = 0
+MAX_SNR = 500
+SNR_STEP = 10
+
+MIN_MAGRMS = 0
+MAX_MAGRMS = 50
+
+MIN_DIST = 0
+MAX_DIST = 100
 
 # SNR slider
-snr_slider = Slider(start=0, end=500,
+snr_slider = Slider(start=MIN_SNR, end=MAX_SNR,
                     value=float(args['snr_cut']),
-                    step=1, title="SNR")
+                    step=SNR_STEP, title="SNR")
 
 # Scatter plot magrms vs. mag
-
-x_axis_label = "{} [{}]".format(data['matchedDataset']['mag']['label'],
-                                data['matchedDataset']['mag']['unit'])
+x_axis_label = "{label} [{unit}]".format_map(mag)
 
 
 # Plot layout
@@ -79,7 +85,7 @@ x_axis_label = "{} [{}]".format(data['matchedDataset']['mag']['label'],
 plot1 = figure(tools="pan, wheel_zoom, ybox_zoom, tap, reset",
                y_axis_location='right',
                x_axis_label=x_axis_label,
-               y_range=(0, 500))
+               y_range=(MIN_MAGRMS, MAX_MAGRMS))
 
 scatter1 = plot1.circle('mag', 'magrms', size=5, fill_alpha=0.5,
                         source=full, color='lightgray', line_color=None)
@@ -96,16 +102,14 @@ partial_scatter1.nonselection_glyph = Circle(fill_color="#1f77b4",
 
 # Scatter plot snr vs. mag
 
-x_axis_label = "{} [{}]".format(data['matchedDataset']['mag']['label'],
-                                data['matchedDataset']['mag']['unit'])
-
-y_axis_label = data['matchedDataset']['snr']['label']
+x_axis_label = "{label} [{unit}]".format_map(mag)
+y_axis_label = "{label}".format_map(snr)
 
 plot2 = figure(tools="pan, wheel_zoom, box_zoom, reset",
                y_axis_location='right',
                y_axis_label=y_axis_label,
                x_range=plot1.x_range,
-               y_range=(0, 500),
+               y_range=(MIN_SNR, MAX_SNR),
                x_axis_label=x_axis_label)
 
 scatter2 = plot2.circle('mag', 'snr', size=5, alpha=0.5,
@@ -128,10 +132,10 @@ plot2.add_layout(span1)
 
 # Scatter plot magerr vs. magrms
 
-# TODO: Use astropy quantities for doing these conversions
+# TODO: Use astropy quantity for having the right unit here
 
-x_axis_label = "{} [mmag]".format(data['matchedDataset']['magrms']['label'])
-y_axis_label = "{} [mmag]".format(data['matchedDataset']['magerr']['label'])
+x_axis_label = "{label} [mmag]".format_map(magrms)
+y_axis_label = "{label} [mmag]".format_map(magrms)
 
 plot3 = figure(tools="pan, wheel_zoom, box_zoom, reset",
                x_axis_label=x_axis_label,
@@ -231,10 +235,12 @@ def update(attr, old, new):
     # Update the selected sample
     index = np.array(full.data['snr']) > snr_cut
 
-    selected.data['snr'] = np.array(full.data['snr'])[index]
-    selected.data['mag'] = np.array(full.data['mag'])[index]
-    selected.data['magrms'] = np.array(full.data['magrms'])[index]
-    selected.data['magerr'] = np.array(full.data['magerr'])[index]
+    tmp = dict(snr=np.array(full.data['snr'])[index],
+               mag=np.array(full.data['mag'])[index],
+               magrms=np.array(full.data['magrms'])[index],
+               magerr=np.array(full.data['magerr'])[index])
+
+    selected.data = tmp
 
     # Redraw partial histogram
     partial_hist, _ = np.histogram(selected.data['magrms'], bins=edges)

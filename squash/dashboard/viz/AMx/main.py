@@ -15,60 +15,62 @@ BASE_DIR = os.path.dirname(
 
 sys.path.append(os.path.join(BASE_DIR))
 
-from helper import get_app_data, add_span_annotation, \
-                   get_url_args
+from api_helper import get_url_args, get_data_as_pandas_df
+from bokeh_helper import add_span_annotation
 
-# URL args and default values for this app
+# App name
+BOKEH_APP = 'AMx'
 
-# TODO: defaults should be the same for all apps
+# Get data
+args = get_url_args(curdoc, defaults={'metric': 'AM1'})
+data = get_data_as_pandas_df(endpoint=BOKEH_APP,
+                             params=args)
 
-args = get_url_args(curdoc, defaults={'metric': 'AM1',
-                                      'job__ci_dataset': 'cfht',
-                                      'ci_id': 817,
-                                      'snr_cut': 100})
+# Configure bokeh data sources with the full and
+# selected datasets
+
+snr = data['matchedDataset']['snr']
+dist = data['matchedDataset']['dist']
+full = ColumnDataSource(data={'snr': snr['value'], 'dist': dist['value']})
+
+# Selected dataset
+# TODO: Use pandas notation here
+
+index = np.array(snr['value']) > float(args['snr_cut'])
+
+selected_snr = np.array(snr['value'])[index]
+selected_dist = np.array(dist['value'])[index]
+selected = ColumnDataSource(data={'snr': selected_snr,
+                                  'dist': selected_dist})
+
+# Configure bokeh widgets
 
 # App title
-title = Div(text="""<h2>{} diagnostic plot for {} dataset from
-                    job ID {}</h2>""".format(args['metric'],
-                                             args['job__ci_dataset'],
-                                             args['ci_id']))
+title = Div(text="""<h2>{metric} diagnostic plot for {job__ci_dataset} dataset from
+                    job ID {ci_id}</h2>""".format_map(args))
 
-# Get the data
-data = get_app_data(bokeh_app='AMx',
-                    ci_id=args['ci_id'],
-                    metric=args['metric'],
-                    ci_dataset=args['job__ci_dataset'])
-
-# Configure bokeh column data sources
-snr = data['matchedDataset']['snr']['value']
-dist = data['matchedDataset']['dist']['value']
-
-full = ColumnDataSource(data={'snr': snr, 'dist': dist})
-
-# Selected data based on snr_cut
-index = np.array(snr) > float(args['snr_cut'])
-
-selected_snr = np.array(snr)[index]
-selected_dist = np.array(dist)[index]
-
-selected = ColumnDataSource(data={'snr': selected_snr, 'dist': selected_dist})
-
-# Configure Bokeh widgets
+# Ranges used in the bokeh widgets
+MIN_SNR = 0
+MAX_SNR = 500
+SNR_STEP = 1
+MIN_DIST = 0
+MAX_DIST = 100
 
 # SNR slider
-
-snr_slider = Slider(start=0, end=500, value=float(args['snr_cut']), step=1,
-                    title="SNR")
+snr_slider = Slider(start=MIN_SNR, end=MAX_SNR, value=float(args['snr_cut']),
+                    step=SNR_STEP, title="SNR")
 
 # Scatter plot
-
 x_axis_label = data['matchedDataset']['snr']['label']
-y_axis_label = "{} [{}]".format(data['matchedDataset']['dist']['label'],
-                                data['matchedDataset']['dist']['unit'])
 
-plot = figure(y_range=(0, 500), y_axis_location='left',
+y_axis_label = "{label} [{unit}]".format_map(data['matchedDataset']['dist'])
+
+plot = figure(y_range=(MIN_DIST, MAX_DIST), y_axis_location='left',
               x_axis_label=x_axis_label, x_axis_type='log',
               y_axis_label=y_axis_label)
+
+
+# TODO: move size, fill alpha and line_color to plot styling configuration
 
 scatter = plot.circle('snr', 'dist', size=5, fill_alpha=0.2,
                       source=full, color='lightgray',
@@ -81,15 +83,15 @@ partial_scatter = plot.circle('snr', 'dist', size=5, fill_alpha=0.2,
                               line_color=None, source=selected)
 
 # default bokeh blue color #1f77b4
-
 partial_scatter.nonselection_glyph = Circle(fill_color="#1f77b4",
                                             fill_alpha=0.2,
                                             line_color=None)
 
-# Add annotations to scatter plot
+# Add annotations to the scatter plot
+# TODO: improve variable naming
 
-span1 = Span(location=100, dimension='height', line_color='black',
-             line_dash='dashed', line_width=3)
+span1 = Span(location=float(args['snr_cut']), dimension='height',
+             line_color='black', line_dash='dashed', line_width=3)
 
 plot.add_layout(span1)
 
@@ -123,11 +125,10 @@ partial_hist, _ = np.histogram(selected.data['dist'],
 histogram = hist.quad(left=0, bottom=edges[:-1], top=edges[1:],
                       right=partial_hist)
 
+# Add annotations to the histograms
 n = len(selected.data['dist'])
 median = np.median(selected.data['dist'])
 rms = np.sqrt(np.mean(np.square(selected.data['dist'])))
-
-# Add annotations to the histograms
 
 label2 = Label(x=200, y=400, x_units='screen', y_units='screen',
                text='Median = {:3.2f} marcsec'.format(median),
@@ -151,21 +152,29 @@ span2 = Span(location=rms,
 
 hist.add_layout(span2)
 
+# TODO: obtain spec thresholds from the API
+
 add_span_annotation(plot=hist, value=20, text="Minimum", color="red")
 add_span_annotation(plot=hist, value=10, text="Design", color="blue")
 add_span_annotation(plot=hist, value=5, text="Stretch", color="green")
 
-
-# Define callbacks
+# Callbacks
 def update(attr, old, new):
 
     snr_cut = snr_slider.value
 
     # Update the selected sample
-    index = np.array(full.data['snr']) > snr_cut
 
-    selected.data['snr'] = np.array(full.data['snr'])[index]
-    selected.data['dist'] = np.array(full.data['dist'])[index]
+    # TODO: Use pandas notation here
+    index = np.array(full.data['snr']) > float(snr_cut)
+
+    # Update the bokeh data source in one step to avoid a warning
+    # re mismatch in length of column data source columns
+
+    tmp = dict(snr=np.array(full.data['snr'])[index],
+               dist=np.array(full.data['dist'])[index])
+
+    selected.data = tmp
 
     # Redraw the partial histogram
     partial_hist, _ = np.histogram(selected.data['dist'],
@@ -178,7 +187,7 @@ def update(attr, old, new):
     median = np.median(selected.data['dist'])
     rms = np.sqrt(np.mean(np.square(selected.data['dist'])))
 
-    # Update spans
+    # Update span anotations
     span1.location = snr_cut
     span2.location = rms
 
@@ -191,7 +200,7 @@ def update(attr, old, new):
 
 snr_slider.on_change('value', update)
 
-# Arrange plots and widgets layout
+# App layout
 layout = row(column(widgetbox(title, width=900),
                     widgetbox(snr_slider, width=900),
                     row(plot, hist)))
