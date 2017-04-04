@@ -4,81 +4,96 @@ import requests
 from datetime import datetime
 from furl import furl
 
-from bokeh.models import Span, Label
-
-
 SQUASH_API_URL = os.environ.get('SQUASH_API_URL',
                                 'http://localhost:8000/dashboard/api/')
 
 
-def get_endpoint_urls(api_url=SQUASH_API_URL):
-    """Lookup endpoint URL(s).
+def get_endpoint_urls():
+    """
+    Lookup API endpoint URLs
     """
 
-    r = requests.get(api_url)
+    r = requests.get(SQUASH_API_URL)
     r.raise_for_status()
 
     return r.json()
 
 
-def get_endpoint(name):
+def get_data(endpoint, params=None):
+    """Return data as a dict from
+    an API endpoint """
+
     api = get_endpoint_urls()
 
-    r = requests.get(api[name])
+    # e.g. http://localhost:8000/AMx?ci_id=1&job__ci_dataset=cfht&metric=AM1
+    r = requests.get(api[endpoint],
+                     params=params)
     r.raise_for_status()
 
     return r.json()
 
 
-def get_datasets():
+def get_data_as_pandas_df(endpoint, params=None):
+    """
+    Return data as a pandas dataframe from
+    an API endpoint
+    """
+
+    result = get_data(endpoint, params)
+    data = pd.DataFrame.from_dict(result, orient='index').transpose()
+
+    return data
+
+
+def get_datasets(default=None):
     """Get a list of datasets from the API
+    and a default value
     Returns
     -------
     datasets : list
         list of dataset names
     default : str
-        the default dataset is the first available,
-        None otherwise
+        if a valid default value is provided, overwrite
+        the default value obtained from the API
     """
-    datasets = get_endpoint('datasets')
 
-    default = None
-    if datasets:
-        if 'cfht' in datasets:
-            default = 'cfht'
-        else:
-            default = datasets[0]
+    datasets = get_data('datasets')
+    default_dataset = get_data('defaults')['job__ci_dataset']
 
-    return {'datasets': datasets, 'default': default}
+    if default:
+        if default in datasets:
+            default_dataset = default
+
+    return {'datasets': datasets, 'default': default_dataset}
 
 
-def get_metrics():
-    """Get the list of metrics
+def get_metrics(default=None):
+    """Get the list of metrics from the API
+    and a default value
     Returns
     -------
     metrics : list
         list of metric names
     default : str
-        the default metric is the firstavailable,
-        None otherwise
+        if a valid default value is provided, overwrite
+        the default value returned from the API
     """
 
-    r = get_endpoint('metrics')
-
+    r = get_data('metrics')
     metrics = [m['metric'] for m in r['results']]
 
-    default = None
-    if len(metrics) > 0:
-        if 'AM1' in metrics:
-            default = 'AM1'
-        else:
-            default = metrics[0]
+    default_metric = get_data('defaults')['metric']
 
-    return {'metrics': metrics, 'default': default}
+    if default:
+        if default in metrics:
+            default_metric = default
+
+    return {'metrics': metrics, 'default': default_metric}
 
 
 def get_value(specs, name):
-    """ Unpack metric specification
+    """ Helper function to unpack metric specification
+    values
     Parameters
     ----------
     specs: dict
@@ -102,7 +117,8 @@ def get_value(specs, name):
 
 
 def get_specs(name):
-    """Get metric specifications from its name
+    """Get metric specifications thresholds
+    from its name
     Parameters
     ----------
     name: str
@@ -121,11 +137,12 @@ def get_specs(name):
         metric stretch goal
     """
 
-    r = get_endpoint('metrics')
+    r = get_data('metrics')
 
     unit = str()
     description = str()
     specs = []
+
     minimum = None
     design = None
     stretch = None
@@ -146,12 +163,43 @@ def get_specs(name):
             'minimum': minimum, 'design': design, 'stretch': stretch}
 
 
+def get_url_args(doc, defaults=None):
+    """Return url args recovered from django_full_path cookie in
+    the bokeh request header.
+
+    If defaults values are provided, overwrite the default values
+    obtained from the API
+    """
+
+    args = get_data('defaults')
+
+    # overwrite api default values
+    if defaults:
+        for key in defaults:
+            args[key] = defaults[key]
+
+    r = doc().session_context.request
+    if r:
+        if 'django_full_path' in r.cookies:
+            tmp = furl(r.cookies['django_full_path'].value).args
+            for key in tmp:
+                # overwrite default values with those passed
+                # as url args, make sure the url arg (key) is valid
+                if key in args:
+                    args[key] = tmp[key]
+
+    return args
+
+# TODO: these functions are used by the regression app and need refactoring
+
+
 def get_initial_page(page_size, num_pages, window):
 
-    # time window in hours corresponding to each page
-    # assuming measurements are done every 8 hours in CI
+    # Page size in hours assuming CI_TIME_INTERVAL
 
-    page_window = page_size * 8
+    CI_TIME_INTERVAL = 8
+
+    page_window = page_size * CI_TIME_INTERVAL
 
     if window == 'weeks':
         initial_page = num_pages - int((24*7)/page_window)
@@ -260,62 +308,3 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
 
     return {'ci_ids': ci_ids, 'dates': dates, 'values': values,
             'ci_urls': ci_urls, 'names': names, 'git_urls': git_urls}
-
-
-def get_url_args(doc, defaults):
-    """Return URL args recovered from django_full_path cookie in
-    the bokeh request header.
-
-    Default args are overwritten by the new value if they are
-    present.
-    """
-
-    args = defaults
-    r = doc().session_context.request
-    if r:
-        if 'django_full_path' in r.cookies:
-            tmp = furl(r.cookies['django_full_path'].value).args
-            for key in tmp:
-                # update default values if arg is present
-                # in the URL
-                if key in args:
-                    args[key] = tmp[key]
-
-    return args
-
-
-def get_app_data(bokeh_app, metric=None, ci_id=None, ci_dataset=None):
-    """Returns a panda dataframe with data consumed by the bokeh apps"""
-
-    api = get_endpoint_urls()
-
-    # e.g. http://localhost:8000/AMx?ci_id=1&job__ci_dataset=cfht&metric=AM1
-
-    r = requests.get(api[bokeh_app],
-                     params={'metric': metric,
-                             'ci_id': ci_id,
-                             'ci_dataset': ci_dataset})
-    r.raise_for_status()
-    results = r.json()
-
-    data = pd.DataFrame.from_dict(results, orient='index').transpose()
-
-    return data
-
-
-def add_span_annotation(plot, value, text, color):
-    """ Add span annotation, used for metric specification
-    thresholds.
-    """
-
-    span = Span(location=value, dimension='width',
-                line_color=color, line_dash='dotted',
-                line_width=2)
-
-    label = Label(x=plot.plot_width-300, y=value+0.5, x_units='screen',
-                  y_units='data', text=text, text_color=color,
-                  text_font_size='11pt', text_font_style='normal',
-                  render_mode='canvas')
-
-    plot.add_layout(span)
-    plot.add_layout(label)

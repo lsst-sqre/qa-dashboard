@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(
 
 sys.path.append(os.path.join(BASE_DIR))
 
-from helper import get_datasets, get_metrics, get_specs, \
+from api_helper import get_datasets, get_metrics, get_specs, \
                    get_meas_by_dataset_and_metric, get_url_args
 
 
@@ -50,8 +50,8 @@ class Metrics(object):
         """
 
         # Load metrics and datasets
-        self.metrics = get_metrics()
-        self.datasets = get_datasets()
+        self.metrics = get_metrics(default='AM1')
+        self.datasets = get_datasets(default='cfht')
 
         # Get args from the app URL or use defaults
         args = get_url_args(doc=curdoc,

@@ -89,6 +89,22 @@ class DatasetViewSet(DefaultsMixin, viewsets.ViewSet):
         datasets = Job.objects.values_list('ci_dataset', flat=True).distinct()
         return response.Response(datasets)
 
+class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
+    """
+    API endpoint for listing default values used by
+    the bokeh apps
+    """
+
+    def list(self, request):
+        ci_id = Job.objects.latest('pk').ci_id
+        job__ci_dataset = Job.objects.latest('pk').ci_dataset
+        metric = Metric.objects.latest('pk').metric
+        snr_cut = '100'
+        result = {'ci_id': ci_id, 'job__ci_dataset': job__ci_dataset,
+                  'metric': metric, 'snr_cut': snr_cut}
+
+        return response.Response(result)
+
 
 # TODO: reduce code duplication in AMxViewSet and PAxViewSet
 

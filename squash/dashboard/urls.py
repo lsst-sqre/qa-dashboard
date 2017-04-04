@@ -10,6 +10,8 @@ api_router.register(r'jobs', views.JobViewSet)
 api_router.register(r'metrics', views.MetricViewSet)
 api_router.register(r'datasets', views.DatasetViewSet,
                     base_name='datasets')
+api_router.register(r'defaults', views.DefaultsViewSet,
+                    base_name='defaults')
 
 # endpoints for data consumed by the bokeh apps
 api_router.register(r'measurements', views.MeasurementViewSet,
