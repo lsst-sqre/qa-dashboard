@@ -9,14 +9,14 @@ from bokeh.models.glyphs import Circle
 from bokeh.plotting import figure
 from bokeh.layouts import row, column, widgetbox
 
-BASE_DIR = os.path.dirname(
+BOKEH_BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
-sys.path.append(os.path.join(BASE_DIR))
+sys.path.append(BOKEH_BASE_DIR)
 
-from api_helper import get_url_args, get_data_as_pandas_df
-from bokeh_helper import add_span_annotation
+from api_helper import get_url_args, get_data_as_pandas_df # noqa
+from bokeh_helper import add_span_annotation # noqa
 
 # App name
 BOKEH_APP = 'PAx'

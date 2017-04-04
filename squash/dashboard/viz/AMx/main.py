@@ -9,14 +9,14 @@ from bokeh.models.glyphs import Circle
 from bokeh.plotting import figure
 from bokeh.layouts import row, column, widgetbox
 
-BASE_DIR = os.path.dirname(
+BOKEH_BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
-sys.path.append(os.path.join(BASE_DIR))
+sys.path.append(BOKEH_BASE_DIR)
 
-from api_helper import get_url_args, get_data_as_pandas_df
-from bokeh_helper import add_span_annotation
+from api_helper import get_url_args, get_data_as_pandas_df # noqa
+from bokeh_helper import add_span_annotation # noqa
 
 # App name
 BOKEH_APP = 'AMx'
@@ -28,7 +28,6 @@ data = get_data_as_pandas_df(endpoint=BOKEH_APP,
 
 # Configure bokeh data sources with the full and
 # selected datasets
-
 snr = data['matchedDataset']['snr']
 dist = data['matchedDataset']['dist']
 full = ColumnDataSource(data={'snr': snr['value'], 'dist': dist['value']})
@@ -157,6 +156,7 @@ hist.add_layout(span2)
 add_span_annotation(plot=hist, value=20, text="Minimum", color="red")
 add_span_annotation(plot=hist, value=10, text="Design", color="blue")
 add_span_annotation(plot=hist, value=5, text="Stretch", color="green")
+
 
 # Callbacks
 def update(attr, old, new):
