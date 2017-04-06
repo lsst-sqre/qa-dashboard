@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(
 sys.path.append(os.path.join(BASE_DIR))
 
 from api_helper import get_datasets, get_metrics, get_specs, \
-                   get_meas_by_dataset_and_metric, get_url_args
+                   get_meas_by_dataset_and_metric, get_url_args # noqa
 
 
 class Metrics(object):

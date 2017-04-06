@@ -89,6 +89,7 @@ class DatasetViewSet(DefaultsMixin, viewsets.ViewSet):
         datasets = Job.objects.values_list('ci_dataset', flat=True).distinct()
         return response.Response(datasets)
 
+
 class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
     """
     API endpoint for listing default values used by
@@ -147,7 +148,7 @@ class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
                 elif blob['identifier'] == astrom_model_id:
                     data['astromModel'] = blob['data']
 
-        return response.Response({**data, **metadata})
+        return response.Response({**data, **metadata}) # noqa
 
 
 class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
