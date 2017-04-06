@@ -16,11 +16,19 @@ class MetricSerializer(serializers.ModelSerializer):
                   'parameters', 'specs', 'reference', 'links',)
 
     def get_links(self, obj):
+
         request = self.context['request']
-        return {
-            'self': reverse('metric-detail', kwargs={'pk': obj.pk},
-                            request=request),
-         }
+        metric = reverse('metric-detail', kwargs={'pk': obj.pk},
+                         request=request)
+
+        regression = reverse('embed-bokeh', args=['regression'],
+                          request=request)
+        data = {
+            'self': metric,
+            'monitor-url': '{}?metric={}&window=weeks'.format(regression,
+                                                              obj.pk)
+        }
+        return data
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
