@@ -55,11 +55,7 @@ class Metrics(object):
 
         # Get args from the app URL or use defaults
         args = get_url_args(doc=curdoc,
-                            defaults={'metric':
-                                      self.metrics['default'],
-                                      'job__ci_dataset':
-                                      self.datasets['default'],
-                                      'window': 'months'})
+                            defaults={'metric': self.metrics['default']})
 
         self.selected_dataset = args['job__ci_dataset']
 

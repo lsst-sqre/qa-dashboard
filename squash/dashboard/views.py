@@ -4,7 +4,7 @@ from django.template import loader
 
 from django.conf import settings
 from rest_framework import authentication, permissions,\
-    viewsets, filters, response, status
+    viewsets, filters, response, status, views, reverse
 
 from bokeh.embed import autoload_server
 
@@ -100,8 +100,10 @@ class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
         job__ci_dataset = Job.objects.latest('pk').ci_dataset
         metric = Metric.objects.latest('pk').metric
         snr_cut = '100'
+        window = 'months'
         result = {'ci_id': ci_id, 'job__ci_dataset': job__ci_dataset,
-                  'metric': metric, 'snr_cut': snr_cut}
+                  'metric': metric, 'snr_cut': snr_cut,
+                  'window': window}
 
         return response.Response(result)
 
