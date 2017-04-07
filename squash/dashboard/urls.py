@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^dashboard/api/', include(api_router.urls)),
     url(r'^dashboard/admin/', include(admin.site.urls)),
     url(r'^dashboard/(?P<bokeh_app>[\w./-]+)/$', views.embed_bokeh,
-        name='embed_bokeh')
+        name='embed-bokeh')
 ]

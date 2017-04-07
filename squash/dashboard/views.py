@@ -4,7 +4,7 @@ from django.template import loader
 
 from django.conf import settings
 from rest_framework import authentication, permissions,\
-    viewsets, filters, response, status
+    viewsets, filters, response, status, views, reverse
 
 from bokeh.embed import autoload_server
 
@@ -89,6 +89,7 @@ class DatasetViewSet(DefaultsMixin, viewsets.ViewSet):
         datasets = Job.objects.values_list('ci_dataset', flat=True).distinct()
         return response.Response(datasets)
 
+
 class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
     """
     API endpoint for listing default values used by
@@ -100,8 +101,10 @@ class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
         job__ci_dataset = Job.objects.latest('pk').ci_dataset
         metric = Metric.objects.latest('pk').metric
         snr_cut = '100'
+        window = 'months'
         result = {'ci_id': ci_id, 'job__ci_dataset': job__ci_dataset,
-                  'metric': metric, 'snr_cut': snr_cut}
+                  'metric': metric, 'snr_cut': snr_cut,
+                  'window': window}
 
         return response.Response(result)
 
@@ -145,7 +148,7 @@ class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
                 elif blob['identifier'] == astrom_model_id:
                     data['astromModel'] = blob['data']
 
-        return response.Response({**data, **metadata})
+        return response.Response({**data, **metadata}) # noqa
 
 
 class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
