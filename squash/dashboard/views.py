@@ -56,7 +56,7 @@ class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
 
 
 class MeasurementViewSet(DefaultsMixin, viewsets.ModelViewSet):
-    """ API endpoint consumed by the metric regression app"""
+    """API endpoint consumed by the monitor app"""
 
     queryset = Measurement.objects.order_by('job__date')
     serializer_class = RegressionSerializer

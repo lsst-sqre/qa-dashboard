@@ -21,11 +21,11 @@ class MetricSerializer(serializers.ModelSerializer):
         metric = reverse('metric-detail', kwargs={'pk': obj.pk},
                          request=request)
 
-        regression = reverse('embed-bokeh', args=['regression'],
+        monitor = reverse('embed-bokeh', args=['monitor'],
                              request=request)
         data = {
             'self': metric,
-            'monitor-url': '{}?metric={}&window=weeks'.format(regression,
+            'monitor-url': '{}?metric={}&window=weeks'.format(monitor,
                                                               obj.pk)
         }
         return data
