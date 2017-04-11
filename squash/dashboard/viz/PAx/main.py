@@ -82,7 +82,8 @@ x_axis_label = "{label} [{unit}]".format_map(mag)
 # | hist, plot1 |
 # | plot3, plot2 |
 
-plot1 = figure(tools="pan, wheel_zoom, ybox_zoom, tap, reset",
+plot1 = figure(tools="pan, box_zoom, wheel_zoom, reset",
+               active_scroll="wheel_zoom",
                y_axis_location='right',
                x_axis_label=x_axis_label,
                y_range=(MIN_MAGRMS, MAX_MAGRMS))
@@ -105,7 +106,8 @@ partial_scatter1.nonselection_glyph = Circle(fill_color="#1f77b4",
 x_axis_label = "{label} [{unit}]".format_map(mag)
 y_axis_label = "{label}".format_map(snr)
 
-plot2 = figure(tools="pan, wheel_zoom, box_zoom, reset",
+plot2 = figure(tools="pan, box_zoom, wheel_zoom, reset",
+               active_scroll="wheel_zoom",
                y_axis_location='right',
                y_axis_label=y_axis_label,
                x_range=plot1.x_range,
@@ -137,7 +139,8 @@ plot2.add_layout(span1)
 x_axis_label = "{label} [mmag]".format_map(magrms)
 y_axis_label = "{label} [mmag]".format_map(magrms)
 
-plot3 = figure(tools="pan, wheel_zoom, box_zoom, reset",
+plot3 = figure(tools="pan, box_zoom, wheel_zoom, reset",
+               active_scroll="wheel_zoom",
                x_axis_label=x_axis_label,
                x_range=plot1.y_range,
                y_axis_label=y_axis_label,
@@ -181,7 +184,9 @@ full_hist, edges = np.histogram(full.data['magrms'], bins=100)
 
 hmax = max(full_hist) * 1.1
 
-hist = figure(tools="pan, wheel_zoom, ybox_zoom, reset", x_range=(0, hmax),
+hist = figure(tools="ypan, ywheel_zoom, reset",
+              active_scroll="ywheel_zoom",
+              x_range=(0, hmax),
               y_range=plot1.y_range, y_axis_location='left',
               y_axis_label=y_axis_label)
 

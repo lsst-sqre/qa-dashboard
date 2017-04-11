@@ -12,6 +12,7 @@ def init_time_series_plot(hover):
         sizing_mode="scale_width",
         toolbar_location="above",
         tools="pan, wheel_zoom, xbox_zoom, reset, tap",
+        active_scroll='wheel_zoom',
         x_axis_type="datetime",
         min_border_top=0,
         min_border_right=10,

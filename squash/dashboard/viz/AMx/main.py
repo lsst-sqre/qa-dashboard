@@ -64,10 +64,11 @@ x_axis_label = data['matchedDataset']['snr']['label']
 
 y_axis_label = "{label} [{unit}]".format_map(data['matchedDataset']['dist'])
 
-plot = figure(y_range=(MIN_DIST, MAX_DIST), y_axis_location='left',
+plot = figure(tools="pan, box_zoom, wheel_zoom, reset",
+              active_scroll="wheel_zoom",
+              y_range=(MIN_DIST, MAX_DIST), y_axis_location='left',
               x_axis_label=x_axis_label, x_axis_type='log',
               y_axis_label=y_axis_label)
-
 
 # TODO: move size, fill alpha and line_color to plot styling configuration
 
@@ -106,7 +107,8 @@ full_hist, edges = np.histogram(full.data['dist'], bins=100)
 
 hmax = max(full_hist) * 1.1
 
-hist = figure(tools="pan, wheel_zoom, ybox_zoom, tap, reset",
+hist = figure(tools="ypan, ywheel_zoom, reset",
+              active_scroll="ywheel_zoom",
               x_range=(0, hmax),
               y_axis_location='right',
               y_range=plot.y_range)
