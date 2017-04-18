@@ -48,7 +48,7 @@ class DefaultsMixin(object):
 class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating jobs"""
 
-    queryset = Job.objects.order_by('date')
+    queryset = Job.objects.prefetch_related('packages', 'measurements').order_by('date')
     serializer_class = JobSerializer
     filter_class = JobFilter
     search_fields = ('ci_id',)
@@ -58,7 +58,7 @@ class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
 class MeasurementViewSet(DefaultsMixin, viewsets.ModelViewSet):
     """API endpoint consumed by the monitor app"""
 
-    queryset = Measurement.objects.order_by('job__date')
+    queryset = Measurement.objects.prefetch_related('job', 'metric').order_by('job__date')
     serializer_class = RegressionSerializer
     filter_fields = ('job__ci_dataset', 'metric')
 
