@@ -4,7 +4,9 @@ from django.template import loader
 
 from django.conf import settings
 from rest_framework import authentication, permissions,\
-    viewsets, filters, response, status, views, reverse
+    viewsets, filters, response, status
+
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from bokeh.embed import autoload_server
 
@@ -45,25 +47,28 @@ class DefaultsMixin(object):
     )
 
 
-class JobViewSet(DefaultsMixin, viewsets.ModelViewSet):
+class JobViewSet(DefaultsMixin, CacheResponseMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating jobs"""
 
-    queryset = Job.objects.order_by('date')
+    queryset = Job.objects.\
+        prefetch_related('packages', 'measurements').order_by('date')
     serializer_class = JobSerializer
     filter_class = JobFilter
     search_fields = ('ci_id',)
     ordering_fields = ('date',)
 
 
-class MeasurementViewSet(DefaultsMixin, viewsets.ModelViewSet):
+class MeasurementViewSet(DefaultsMixin, CacheResponseMixin,
+                         viewsets.ModelViewSet):
     """API endpoint consumed by the monitor app"""
 
-    queryset = Measurement.objects.order_by('job__date')
+    queryset = Measurement.objects.\
+        prefetch_related('job', 'metric').order_by('job__date')
     serializer_class = RegressionSerializer
     filter_fields = ('job__ci_dataset', 'metric')
 
 
-class MetricViewSet(DefaultsMixin, viewsets.ModelViewSet):
+class MetricViewSet(DefaultsMixin, CacheResponseMixin, viewsets.ModelViewSet):
     """API endpoint for listing and creating metrics"""
 
     queryset = Metric.objects.order_by('metric')
@@ -111,7 +116,7 @@ class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
 
 # TODO: reduce code duplication in AMxViewSet and PAxViewSet
 
-class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
+class AMxViewSet(DefaultsMixin, CacheResponseMixin, viewsets.ViewSet):
     """API endpoint for listing AMx app data"""
 
     def list(self, request):
@@ -151,7 +156,7 @@ class AMxViewSet(DefaultsMixin, viewsets.ViewSet):
         return response.Response({**data, **metadata}) # noqa
 
 
-class PAxViewSet(DefaultsMixin, viewsets.ViewSet):
+class PAxViewSet(DefaultsMixin, CacheResponseMixin, viewsets.ViewSet):
     """API endpoint for listing PAx app data"""
 
     def list(self, request):
