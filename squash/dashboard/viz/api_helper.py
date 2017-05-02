@@ -195,6 +195,7 @@ def get_url_args(doc, defaults=None):
 
     return args
 
+
 # TODO: these functions are used by the monitor app and need refactoring
 def get_initial_page(page_size, num_pages, window):
 
