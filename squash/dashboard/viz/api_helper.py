@@ -25,7 +25,7 @@ def get_data(endpoint, params=None):
 
     api = get_endpoint_urls()
 
-    # e.g. http://localhost:8000/AMx?ci_id=1&job__ci_dataset=cfht&metric=AM1
+    # e.g. http://localhost:8000/AMx?ci_id=1&ci_dataset=cfht&metric=AM1
     r = requests.get(api[endpoint],
                      params=params)
     r.raise_for_status()
@@ -40,6 +40,7 @@ def get_data_as_pandas_df(endpoint, params=None):
     """
 
     result = get_data(endpoint, params)
+
     data = pd.DataFrame.from_dict(result, orient='index').transpose()
 
     return data
@@ -58,7 +59,7 @@ def get_datasets(default=None):
     """
 
     datasets = get_data('datasets')
-    default_dataset = get_data('defaults')['job__ci_dataset']
+    default_dataset = get_data('defaults')['ci_dataset']
 
     if default:
         if default in datasets:
@@ -181,18 +182,20 @@ def get_url_args(doc, defaults=None):
     r = doc().session_context.request
     if r:
         if 'django_full_path' in r.cookies:
-            tmp = furl(r.cookies['django_full_path'].value).args
+            django_full_path = r.cookies['django_full_path'].value
+            tmp = furl(django_full_path).args
             for key in tmp:
                 # overwrite default values with those passed
                 # as url args, make sure the url arg (key) is valid
                 if key in args:
                     args[key] = tmp[key]
 
+            # the bokeh app name is the second segment of the url path
+            args['bokeh_app'] = furl(django_full_path).path.segments[1]
+
     return args
 
 # TODO: these functions are used by the monitor app and need refactoring
-
-
 def get_initial_page(page_size, num_pages, window):
 
     # Page size in hours assuming CI_TIME_INTERVAL
@@ -245,10 +248,10 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
     """
     api = get_endpoint_urls()
 
-    # http://localhost:8000/dashboard/api/measurements/?job__ci_dataset=cfht&metric=AM1
+    # http://localhost:8000/dashboard/api/measurements/?ci_dataset=cfht&metric=AM1
 
     r = requests.get(api['measurements'],
-                     params={'job__ci_dataset': selected_dataset,
+                     params={'ci_dataset': selected_dataset,
                              'metric': selected_metric})
     r.raise_for_status()
 
@@ -270,7 +273,7 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
         for page in range(initial_page, num_pages + 1):
             r = requests.get(
                 api['measurements'],
-                params={'job__ci_dataset': selected_dataset,
+                params={'ci_dataset': selected_dataset,
                         'metric': selected_metric,
                         'page': page})
             r.raise_for_status()
