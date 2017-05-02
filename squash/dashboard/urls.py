@@ -17,14 +17,14 @@ api_router.register(r'defaults', views.DefaultsViewSet,
 # endpoints for data consumed by the bokeh apps
 api_router.register(r'measurements', views.MeasurementViewSet,
                     base_name='measurements')
-api_router.register(r'AMx', views.AMxViewSet, base_name='AMx')
-api_router.register(r'PAx', views.PAxViewSet, base_name='PAx')
+api_router.register(r'apps', views.BokehAppViewSet,
+                    base_name='apps')
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^dashboard/api/', include(api_router.urls)),
     url(r'^dashboard/admin/', include(admin.site.urls)),
-    url(r'^dashboard/(?P<bokeh_app>[\w./-]+)/$', views.embed_bokeh,
+    url(r'^dashboard/(?P<bokeh_app>\w+)/$', views.embed_bokeh,
         name='embed-bokeh')
 ]
 
