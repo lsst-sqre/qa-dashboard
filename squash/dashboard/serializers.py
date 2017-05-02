@@ -22,7 +22,7 @@ class MetricSerializer(serializers.ModelSerializer):
                          request=request)
 
         monitor = reverse('embed-bokeh', args=['monitor'],
-                             request=request)
+                          request=request)
         data = {
             'self': metric,
             'monitor-url': '{}?metric={}&window=weeks'.format(monitor,
