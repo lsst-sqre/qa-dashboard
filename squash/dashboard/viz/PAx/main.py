@@ -18,35 +18,51 @@ sys.path.append(BOKEH_BASE_DIR)
 from api_helper import get_url_args, get_data_as_pandas_df # noqa
 from bokeh_helper import add_span_annotation # noqa
 
-# App name
-BOKEH_APP = 'PAx'
+
+# Get url query args
+args = get_url_args(curdoc, defaults={'metric': 'PA1'})
 
 # Get data
-args = get_url_args(curdoc, defaults={'metric': 'PA1'})
-data = get_data_as_pandas_df(endpoint=BOKEH_APP,
+data = get_data_as_pandas_df(endpoint='apps',
                              params=args)
 
 # Configure bokeh data sources with the full and
 # selected datasets
-snr = data['matchedDataset']['snr']
-mag = data['matchedDataset']['mag']
 
-# values are in mmag
-magrms = data['matchedDataset']['magrms']
-magerr = data['matchedDataset']['magerr']
+snr = {'value': [], 'label': '', 'unit': ''}
+selected_snr = []
+
+mag = {'value': [], 'label': '', 'unit': ''}
+selected_mag = []
+
+magrms = {'value': [], 'label': '', 'unit': ''}
+selected_magrms = []
+
+magerr = {'value': [], 'label': '', 'unit': ''}
+selected_magerr = []
+
+if not data.empty:
+    snr = data['matchedDataset']['snr']
+    mag = data['matchedDataset']['mag']
+
+    # values are in mmag
+    magrms = data['matchedDataset']['magrms']
+    magerr = data['matchedDataset']['magerr']
+
+    # Selected data based on snr_cut
+    index = np.array(snr['value']) > float(args['snr_cut'])
+
+    selected_snr = np.array(snr['value'])[index]
+    selected_mag = np.array(mag['value'])[index]
+    selected_magrms = np.array(magrms['value'])[index]*1000
+    selected_magerr = np.array(magerr['value'])[index]*1000
+
 
 # TODO: Use astropy quantity for doing these conversions
 full = ColumnDataSource(data={'snr': snr['value'], 'mag': mag['value'],
                               'magrms': np.array(magrms['value'])*1000,
                               'magerr': np.array(magerr['value'])*1000})
 
-# Selected data based on snr_cut
-index = np.array(snr['value']) > float(args['snr_cut'])
-
-selected_snr = np.array(snr['value'])[index]
-selected_mag = np.array(mag['value'])[index]
-selected_magrms = np.array(magrms['value'])[index]*1000
-selected_magerr = np.array(magerr['value'])[index]*1000
 
 selected = ColumnDataSource(data={'snr': selected_snr,
                                   'mag': selected_mag,
@@ -55,7 +71,7 @@ selected = ColumnDataSource(data={'snr': selected_snr,
 # Configure bokeh widgets
 
 # App title
-title = Div(text="""<h2>{metric} diagnostic plot for {job__ci_dataset} dataset from
+title = Div(text="""<h2>{metric} diagnostic plot for {ci_dataset} dataset from
                     job ID {ci_id}</h2>""".format_map(args))
 
 # Ranges used in the bokeh widgets
@@ -125,8 +141,12 @@ partial_scatter2 = plot2.circle('mag', 'snr', size=5, fill_alpha=0.5,
 
 partial_scatter2.nonselection_glyph = Circle(fill_color="#1f77b4",
                                              fill_alpha=0.5, line_color=None)
+min_snr = 0
+if len(selected.data['snr']) > 0:
+    min_snr = np.min(selected.data['snr'])
 
-span1 = Span(location=np.min(selected.data['snr']),
+
+span1 = Span(location=min_snr,
              dimension='width', line_color='black',
              line_dash='dashed', line_width=3)
 
@@ -161,16 +181,24 @@ partial_scatter3.nonselection_glyph = Circle(fill_color="#1f77b4",
                                              fill_alpha=0.5,
                                              line_color=None)
 
+max_magerr = 0
+if len(selected.data['magerr']) > 0:
+    max_magerr = np.max(selected.data['magerr'])
 
-span3 = Span(location=np.max(selected.data['magerr']),
+span3 = Span(location=max_magerr,
              dimension='width', line_color='black',
              line_dash='dashed', line_width=3)
 
 plot3.add_layout(span3)
 
+min_snr = 0
+if len(selected.data['snr']) > 0:
+    min_snr = np.min(selected.data['snr'])
+
 label2 = Label(x=200, y=325, x_units='screen', y_units='screen',
-               text='SNR > {:3.2f}'.format(np.min(selected.data['snr'])),
+               text='SNR > {:3.2f}'.format(min_snr),
                render_mode='css')
+
 
 plot1.add_layout(label2)
 
@@ -178,7 +206,7 @@ plot1.add_layout(label2)
 
 # TODO: Use astropy quantities for doing this conversion
 
-y_axis_label = "{} [mmag]".format(data['matchedDataset']['magrms']['label'])
+y_axis_label = "{} [mmag]".format(magrms['label'])
 
 full_hist, edges = np.histogram(full.data['magrms'], bins=100)
 
@@ -256,25 +284,39 @@ def update(attr, old, new):
     median = np.median(selected.data['magrms'])
 
     # Update spans
-    snr_cut = np.min(selected.data['snr'])
 
-    span1.location = snr_cut
+    min_snr = 0
+    if len(selected.data['snr']) > 0:
+        min_snr = np.min(selected.data['snr'])
+
+    span1.location = min_snr
     span2.location = median
-    span3.location = np.max(selected.data['magerr'])
+
+    max_magerr = 0
+    if len(selected.data['magerr']) > 0:
+        max_magerr = np.max(selected.data['magerr'])
+
+    span3.location = max_magerr
 
     # Update labels
-    label2.text = 'SNR > {:3.2f}'.format(np.min(selected.data['snr']))
+    label2.text = 'SNR > {:3.2f}'.format(min_snr)
     label3.text = 'Median = {:3.2f} mmag'.format(median)
     label4.text = 'N = {}'.format(n)
 
 
 snr_slider.on_change('value', update)
 
+
 # Arrange plots and widgets layout
-layout = row(column(widgetbox(title, width=900),
-                    widgetbox(snr_slider, width=900),
-                    row(hist, plot1),
-                    row(plot3, plot2)))
+
+if data.empty:
+    layout = column(widgetbox(title, width=900),
+                    widgetbox(Div(text="""<h4>No data to display.</h4>""")))
+else:
+    layout = row(column(widgetbox(title, width=900),
+                        widgetbox(snr_slider, width=900),
+                        row(hist, plot1),
+                        row(plot3, plot2)))
 
 
 curdoc().add_root(layout)
