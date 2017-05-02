@@ -2,10 +2,10 @@ import os
 import sys
 import time
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, HoverTool,\
-                         Span, Label, BoxAnnotation
+from bokeh.models import ColumnDataSource, HoverTool, Span, Label,\
+    BoxAnnotation
 from bokeh.models.widgets import Select, Div, DataTable, TableColumn,\
-                                 HTMLTemplateFormatter
+    HTMLTemplateFormatter
 from bokeh.layouts import row, widgetbox, column
 from defaults import init_time_series_plot
 
