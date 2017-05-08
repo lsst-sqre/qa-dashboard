@@ -18,35 +18,41 @@ sys.path.append(BOKEH_BASE_DIR)
 from api_helper import get_url_args, get_data_as_pandas_df # noqa
 from bokeh_helper import add_span_annotation # noqa
 
-# App name
-BOKEH_APP = 'AMx'
-
-# Get data
+# Get url query args
 args = get_url_args(curdoc, defaults={'metric': 'AM1'})
-data = get_data_as_pandas_df(endpoint=BOKEH_APP,
-                             params=args)
 
-# Configure bokeh data sources with the full and
-# selected datasets
-snr = data['matchedDataset']['snr']
-dist = data['matchedDataset']['dist']
-full = ColumnDataSource(data={'snr': snr['value'], 'dist': dist['value']})
-
-# Selected dataset
-# TODO: Use pandas notation here
-
-index = np.array(snr['value']) > float(args['snr_cut'])
-
-selected_snr = np.array(snr['value'])[index]
-selected_dist = np.array(dist['value'])[index]
-selected = ColumnDataSource(data={'snr': selected_snr,
-                                  'dist': selected_dist})
-
-# Configure bokeh widgets
 
 # App title
-title = Div(text="""<h2>{metric} diagnostic plot for {job__ci_dataset} dataset from
+title = Div(text="""<h2>{metric} diagnostic plot for {ci_dataset} dataset from
                     job ID {ci_id}</h2>""".format_map(args))
+
+# Get data
+data = get_data_as_pandas_df(endpoint='apps',
+                             params=args)
+
+
+# Configure bokeh data sources with the full and
+# selected data sets
+
+
+snr = {'value': [], 'label': '', 'unit': ''}
+selected_snr = []
+
+dist = {'value': [], 'label': '', 'unit': ''}
+selected_dist = []
+
+if not data.empty:
+    snr = data['matchedDataset']['snr']
+    index = np.array(snr['value']) > float(args['snr_cut'])
+    selected_snr = np.array(snr['value'])[index]
+
+    dist = data['matchedDataset']['dist']
+    index = np.array(snr['value']) > float(args['snr_cut'])
+    selected_dist = np.array(dist['value'])[index]
+
+
+full = ColumnDataSource(data={'snr': snr['value'], 'dist': dist['value']})
+selected = ColumnDataSource(data={'snr': selected_snr, 'dist': selected_dist})
 
 # Ranges used in the bokeh widgets
 MIN_SNR = 0
@@ -60,9 +66,9 @@ snr_slider = Slider(start=MIN_SNR, end=MAX_SNR, value=float(args['snr_cut']),
                     step=SNR_STEP, title="SNR")
 
 # Scatter plot
-x_axis_label = data['matchedDataset']['snr']['label']
+x_axis_label = snr['label']
 
-y_axis_label = "{label} [{unit}]".format_map(data['matchedDataset']['dist'])
+y_axis_label = "{label} [{unit}]".format_map(dist)
 
 plot = figure(tools="pan, box_zoom, wheel_zoom, reset",
               active_scroll="wheel_zoom",
@@ -203,9 +209,15 @@ def update(attr, old, new):
 snr_slider.on_change('value', update)
 
 # App layout
-layout = row(column(widgetbox(title, width=900),
-                    widgetbox(snr_slider, width=900),
-                    row(plot, hist)))
+
+if data.empty:
+    layout = column(widgetbox(title, width=900),
+                    widgetbox(Div(text="""<h4>No data to display.</h4>"""),
+                              width=900))
+else:
+    layout = row(column(widgetbox(title, width=900),
+                        widgetbox(snr_slider, width=900),
+                        row(plot, hist)))
 
 curdoc().add_root(layout)
 curdoc().title = "SQuaSH"

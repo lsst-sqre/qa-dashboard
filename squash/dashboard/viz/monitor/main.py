@@ -57,7 +57,7 @@ class Metrics(object):
         args = get_url_args(doc=curdoc,
                             defaults={'metric': self.metrics['default']})
 
-        self.selected_dataset = args['job__ci_dataset']
+        self.selected_dataset = args['ci_dataset']
 
         self.selected_metric = args['metric']
 
@@ -282,7 +282,7 @@ class Metrics(object):
 
         # job id is selected from the table
         params = "?metric={}&" \
-                 "job__ci_dataset={}&" \
+                 "ci_dataset={}&" \
                  "ci_id=<%= ci_ids %>".format(self.selected_metric,
                                               self.selected_dataset)
 

@@ -129,13 +129,6 @@ class VersionedPackageSerializer(serializers.ModelSerializer):
                   'build_version')
 
 
-class BlobSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Job
-        fields = ('blobs',)
-
-
 class JobSerializer(serializers.ModelSerializer):
 
     links = serializers.SerializerMethodField()

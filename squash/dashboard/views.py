@@ -1,3 +1,5 @@
+from ast import literal_eval
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
@@ -13,8 +15,8 @@ from bokeh.embed import autoload_server
 from .forms import JobFilter
 from .models import Job, Metric, Measurement, VersionedPackage
 from .serializers import JobSerializer, MetricSerializer,\
-    RegressionSerializer, MeasurementSerializer, \
-    BlobSerializer
+    RegressionSerializer
+
 
 try:
     bokeh_url = settings.BOKEH_URL
@@ -101,100 +103,84 @@ class DefaultsViewSet(DefaultsMixin, viewsets.ViewSet):
     the bokeh apps
     """
 
-    def list(self, request):
-        ci_id = Job.objects.latest('pk').ci_id
-        job__ci_dataset = Job.objects.latest('pk').ci_dataset
-        metric = Metric.objects.latest('pk').metric
+    def get_defaults(self):
+        queryset = Job.objects.values('ci_id', 'ci_dataset').latest('pk')
+
+        ci_id = queryset['ci_id']
+        ci_dataset = queryset['ci_dataset']
+
+        queryset = Metric.objects.values_list('metric', flat=True)
+
+        if 'AM1' in queryset:
+            metric = 'AM1'
+        else:
+            metric = queryset.latest('pk')
+
         snr_cut = '100'
         window = 'months'
-        result = {'ci_id': ci_id, 'job__ci_dataset': job__ci_dataset,
-                  'metric': metric, 'snr_cut': snr_cut,
-                  'window': window}
 
-        return response.Response(result)
+        return {'ci_id': ci_id, 'ci_dataset': ci_dataset,
+                'metric': metric, 'snr_cut': snr_cut,
+                'window': window}
+
+    def list(self, request):
+        defaults = self.get_defaults()
+        return response.Response(defaults)
 
 
-# TODO: reduce code duplication in AMxViewSet and PAxViewSet
+class BokehAppViewSet(DefaultsMixin, viewsets.ViewSet):
 
-class AMxViewSet(DefaultsMixin, CacheResponseMixin, viewsets.ViewSet):
-    """API endpoint for listing AMx app data"""
+    def get_app_data(self, ci_id, ci_dataset, metric):
+
+        data = {}
+
+        blobs = Job.objects.filter(ci_id=ci_id,
+                                   ci_dataset=ci_dataset).values('blobs')
+
+        metadata = Measurement.\
+            objects.filter(metric=metric, job__ci_id=ci_id,
+                           job__ci_dataset=ci_dataset).values('metadata')
+
+        if metadata.exists():
+            # workaround for getting item from queryset
+            metadata = metadata[0]['metadata']
+            if metadata:
+                metadata = literal_eval(literal_eval(metadata))
+                blob_id = metadata.pop('blobs')
+                data['metadata'] = metadata
+
+                if blobs.exists():
+                    # workaround for getting item from queryset
+                    blobs = blobs[0]['blobs']
+                    if blobs:
+                        blobs = literal_eval(literal_eval(blobs))
+                        for blob in blobs:
+                            # Look up for data blobs
+                            if blob['identifier'] == blob_id['matchedDataset']:
+                                data['matchedDataset'] = blob['data']
+
+                            elif blob['identifier'] == blob_id['photomModel']:
+                                data['photomModel'] = blob['data']
+
+                            elif blob['identifier'] == blob_id['astromModel']:
+                                data['astromModel'] = blob['data']
+        return data
 
     def list(self, request):
 
-        # TODO: filter by job id
-        job = Job.objects.latest('pk')
-        blob_serializer = BlobSerializer(job)
+        defaults = DefaultsViewSet().get_defaults()
 
-        # TODO: filter by metric
-        measurement = Measurement.objects.filter(job=job)[0]
-        measurement_serializer = MeasurementSerializer(measurement)
+        ci_id = self.request.query_params.get('ci_id',
+                                              defaults['ci_id'])
 
-        data = {}
-        metadata = {}
+        ci_dataset = self.request.query_params.get('ci_dataset',
+                                                   defaults['ci_dataset'])
+        metric = self.request.query_params.get('metric',
+                                               defaults['metric'])
 
-        if measurement_serializer.data['metadata']:
+        data = self.get_app_data(ci_id, ci_dataset, metric)
 
-            metadata['metadata'] = \
-                eval(measurement_serializer.data['metadata'])
-
-            # datasets used in this measurement
-            blobs = metadata['metadata'].pop('blobs')
-
-            matched_dataset_id = blobs['matchedDataset']
-            astrom_model_id = blobs['astromModel']
-
-            # given the dataset ids, get the actual data
-            # from the Job model
-            data_blobs = eval(blob_serializer.data['blobs'])
-
-            for blob in data_blobs:
-                if blob['identifier'] == matched_dataset_id:
-                    data['matchedDataset'] = blob['data']
-                elif blob['identifier'] == astrom_model_id:
-                    data['astromModel'] = blob['data']
-
-        return response.Response({**data, **metadata}) # noqa
-
-
-class PAxViewSet(DefaultsMixin, CacheResponseMixin, viewsets.ViewSet):
-    """API endpoint for listing PAx app data"""
-
-    def list(self, request):
-
-        # TODO: filter by job id
-        job = Job.objects.latest('pk')
-        blob_serializer = BlobSerializer(job)
-
-        # TODO: filter by metric
-        measurement = Measurement.objects.filter(job=job)[0]
-        measurement_serializer = MeasurementSerializer(measurement)
-
-        data = {}
-        metadata = {}
-
-        if measurement_serializer.data['metadata']:
-
-            metadata['metadata'] =\
-                eval(measurement_serializer.data['metadata'])
-
-            # datasets used in this measurement
-            blobs = metadata['metadata'].pop('blobs')
-
-            # data blob identifier for this measurement
-            matched_dataset_id = blobs['matchedDataset']
-            photom_model_id = blobs['photomModel']
-
-            # given the dataset ids, get the actual data
-            # from the Job model
-            data_blobs = eval(blob_serializer.data['blobs'])
-
-            for blob in data_blobs:
-                if blob['identifier'] == matched_dataset_id:
-                    data['matchedDataset'] = blob['data']
-                elif blob['identifier'] == photom_model_id:
-                    data['photomModel'] = blob['data']
-
-        return response.Response({**data, **metadata})
+        return response.Response(data)
 
 
 def embed_bokeh(request, bokeh_app):
@@ -212,6 +198,11 @@ def embed_bokeh(request, bokeh_app):
                'bokeh_app': bokeh_app}
 
     response = HttpResponse(template.render(context, request))
+
+    # Save full url path in the HTTP response, so that the bokeh
+    # app can use this info, e.g:
+    # http://localhost:8000/dashboard/AMx/?metric=AM1&ci_dataset=cfht&ci_id=452
+
     response.set_cookie('django_full_path', request.get_full_path())
 
     return response
