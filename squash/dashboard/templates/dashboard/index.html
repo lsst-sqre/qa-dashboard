@@ -1,63 +1,55 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load cache %}
 
 {% block title %}{{ block.super }} - {{ slug|capfirst }}{% endblock %}
 
 {% block content %}
 
-
+<br/>
 <div class="jumbotron">
     <div class="container">
         <h1>SQuaSH</h1>
-        <p>A QC service developed by SQuaRE.</p>
+        <p>A service developed by LSST SQuaRE.</p>
     </div>
 </div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <h2>Purpose</h2>
-            <p>SQuaSH provides a minimal infrastructure for
+<div class="row">
+    <div class="col-lg-6">
+        <h2>Purpose</h2>
+        <p>SQuaSH provides a minimal infrastructure for
             testing the LSST stack using precursor datasets.
 
-            SQuaSH can be used and extended by LSST DM
+            It can be used and extended by LSST DM
             to preserve the code and knowledge developed during LSST construction.
-            </p>
-            <br>
-            <h2>How to Use</h2>
-            <p>
-            Start by looking at Key Performance Metrics computed by
-                <a href="http://dmtn-008.lsst.io/en/latest/">validate_drp</a> and check the existing features.
-            </p>
-            <p>
-                <a class="btn btn-default"
-                    href="/dashboard/monitor/" role="button">
-                    Go >>
-                </a>
-                <a class="btn btn-default"
-                    href="http://sqr-009.lsst.io/en/latest/" role="button">
-                    Learn more
-                </a>
-            </p>
-        </div>
-        <div class="col-md-6">
-            <br>
-            <br>
-            <ul class="list-group">
-                <li class="list-group-item">Last CI job on
-                    <b>{{last}}</b> </li>
-                  <li class="list-group-item"># of metrics being monitored:
-                      <span class="badge">{{n_metrics}}</span></li>
-                  <li class="list-group-item"># of LSST packages being monitored:
-                      <span class="badge">{{n_packages}}</span></li>
-                  <li class="list-group-item"># of CI jobs:
-                      <span class="badge">{{n_jobs}}</span></li>
-                  <li class="list-group-item"># of measurements:
-                      <span class="badge">{{n_meas}}</span></li>
-                  <li class="list-group-item">Supported datasets:
-                      <span class="badge">{{datasets}}</span></li>
-            </ul>
-         </div>
-      </div>
+        </p>
+        <br>
+        <h2>How to Use</h2>
+        <p>
+            The Monitor app shows a time series plot for each metric measured by
+            <a href="http://dmtn-008.lsst.io/en/latest/">validate_drp</a>.
+            Deviations in the metric measurements can be correlated with changes
+            in the code.
+            For some metrics drill down plots explain how the
+            measurements are performed.
+        </p>
+    </div>
+    <div class="col-lg-6">
+        <br>
+        <br>
+        <ul class="list-group">
+            <li class="list-group-item">Last CI job on
+                <b>{{last}}</b> </li>
+            <li class="list-group-item"># of metrics monitored:
+                <span class="badge">{{n_metrics}}</span></li>
+            <li class="list-group-item"># of LSST packages monitored:
+                <span class="badge">{{n_packages}}</span></li>
+            <li class="list-group-item"># of CI jobs executed:
+                <span class="badge">{{n_jobs}}</span></li>
+            <li class="list-group-item"># of measurements:
+                <span class="badge">{{n_meas}}</span></li>
+            <li class="list-group-item">Supported datasets:
+                <span class="badge">{{datasets}}</span></li>
+        </ul>
+    </div>
 </div>
 
 {% endblock %}
