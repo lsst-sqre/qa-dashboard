@@ -63,9 +63,10 @@
     <!-- Layout for sidebar and main content -->
     <div class="container-fluid">
         <div class="row">
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <div class="visible-lg-block">
                     <!-- Sidebar menu -->
+                    <br/>
                     <ul class="nav nav-sidebar">
                         <li><a href="/"><i class="fa fa-home fa-lg"></i> Home</a></li>
                         <li><a href="/dashboard/monitor/"><i class="fa fa-area-chart">
@@ -96,7 +97,7 @@
                 </div>
             </div>
             <!-- Main content -->
-            <div class="col-md-10">
+            <div class="col-md-8">
                 {% block content %}
                 {% endblock %}
                 <footer>
@@ -106,7 +107,7 @@
                     </div>
                 </footer>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
             </div>
         </div>
     </div>
