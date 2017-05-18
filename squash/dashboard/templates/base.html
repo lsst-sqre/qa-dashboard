@@ -1,61 +1,120 @@
 {% load staticfiles %}
+
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>{% block title %}SQUASH{% endblock %}</title>
-        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-        <link rel="stylesheet" href="{% static 'css/site.css' %}">
-    </head>
-
-    <body id="{% block body-id %}body{% endblock %}">
-        {% block top-nav-wrapper %}
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle"
-                        data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li>
-                            <a href="/">HOME</a>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0,
+    maximum-scale=1.0, user-scalable=0">
+    <title>LSST SQuaSH</title>
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/site.css' %}" rel="stylesheet">
+</head>
+<body>
+    <!-- Collapsing navigation bar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/"><b>SQUASH</b></a>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse" id="navbar">
+                <!-- Make menu options visible for medium, small and extra small devices -->
+                <div class="hide-lg-block visible-md-block visible-sm-block visible-xs-block">
+                    <ul class="nav navbar-nav navbar-center">
+                        <li><a href="/"><i class="fa fa-home fa-lg"></i> Home</a></li>
+                        <li><a href="/dashboard/monitor/"><i class="fa fa-area-chart">
+                        </i> Monitor</a></li>
+                        <!-- Dropdown menu to display metrics drill down plots -->
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-line-chart">
+                                </i> Metrics <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="#">AD1</a></lii>
+                                <li class="disabled"><a href="#">AD2</a></lii>
+                                <li class="disabled"><a href="#">AF1</a></li>
+                                <li class="disabled"><a href="#">AF2</a></li>
+                                <li><a href="/dashboard/AMx/?metric=AM1">AM1</a></li>
+                                <li><a href="/dashboard/AMx/?metric=AM2">AM2</a></li>
+                                <li><a href="/dashboard/PAx/?metric=PA1">PA1</a></li>
+                                <li><a href="/dashboard/PAx/?metric=PA2">PA2</a></li>
+                                <li class="disabled"><a href="#">PA2</a></li>
+                            </ul>
                         </li>
-                        <li>
-                            <a href="/dashboard/monitor/">KPMs</a>
-                        </li>
-                        <li>
-                            <a href="/dashboard/api/">API</a>
-                        </li>
+                        <li><a href="/dashboard/reports/"><i class="fa fa-th">
+                        </i> Reports</a></li>
                     </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <a href="http://sqr-009.lsst.io/en/latest/">Help</a>
-                        </li>
-                    </ul>
                 </div>
+                <!-- These menu items are always visible -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/dashboard/api/">API</a></li>
+                    <li><a href="http://sqr-009.lsst.io/">Help</a></li>
+                </ul>
             </div>
         </div>
-        {% endblock %}
-        {% block content %}
-        {% endblock %}
-        <footer>
-            <hr>
-            <div class="container">
-                <p>&copy; Copyright {% now 'Y' %}, AURA/LSST</p>
+    </nav>
+    <!-- Layout for sidebar and main content -->
+    <div class="container-fluid">
+        <div class="row">
+                <div class="col-lg-2">
+                    <div class="visible-lg-block">
+                    <!-- Sidebar menu -->
+                    <br/>
+                    <ul class="nav nav-sidebar">
+                        <li><a href="/"><i class="fa fa-home fa-lg"></i> Home</a></li>
+                        <li><a href="/dashboard/monitor/"><i class="fa fa-area-chart">
+                        </i> Monitor</a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-line-chart">
+                                </i> Metrics <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li class="disabled"><a href="#">AD1</a></lii>
+                                <li class="disabled"><a href="#">AD2</a></lii>
+                                <li class="disabled"><a href="#">AF1</a></li>
+                                <li class="disabled"><a href="#">AF2</a></li>
+                                <li><a href="/dashboard/AMx/?metric=AM1">AM1</a></li>
+                                <li><a href="/dashboard/AMx/?metric=AM2">AM2</a></li>
+                                <li><a href="/dashboard/PAx/?metric=PA1">PA1</a></li>
+                                <li><a href="/dashboard/PAx/?metric=PA2">PA2</a></li>
+                                <li class="disabled"><a href="#">PA2</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="/dashboard/reports/"><i class="fa fa-th">
+                        </i> Reports</a></li>
+                    </ul>
+                    <ul class="nav nav-sidebar">
+                        <li><a href="/dashboard/api/">API</a></li>
+                        <li><a href="http://sqr-009.lsst.io/">Help</a></li>
+                    </ul>
+                </div>
             </div>
-        </footer>
-        <script src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+            <!-- Main content -->
+            <div class="col-lg-8">
+                {% block content %}
+                {% endblock %}
+                <footer>
+                    <hr>
+                    <div class="container" >
+                        <p>&copy; Copyright {% now 'Y' %}, AURA/LSST</p>
+                    </div>
+                </footer>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+    </div>
+    <!-- Keep at the end of the document so that pages load faster -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     </body>
 </html>
-
-
-

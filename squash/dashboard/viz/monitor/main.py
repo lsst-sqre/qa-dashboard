@@ -96,13 +96,12 @@ class Metrics(object):
         else:
             self.loading.text = ""
 
-        self.layout = row(widgetbox(dataset_select,
-                                    metric_select,
-                                    width=150),
-                          column(widgetbox(self.title, width=1000),
-                                 self.plot,
-                                 widgetbox(self.table_title, width=1000),
-                                 self.table))
+        self.layout = column(row(widgetbox(metric_select, width=150),
+                                 widgetbox(dataset_select, width=150)),
+                             widgetbox(self.title, width=1000),
+                             self.plot,
+                             widgetbox(self.table_title, width=1000),
+                             self.table)
 
     def on_dataset_change(self, attr, old, new):
         """Handle dataset select event, it reloads the measurements
@@ -225,7 +224,7 @@ class Metrics(object):
     def make_title(self, title, description=""):
         """ Update page title with the selected metric
         """
-        return """<left><h2>{}</h2>{}
+        return """<left><h3>{}</h3>{}
         </left>""".format(title, description)
 
     def make_plot(self):

@@ -249,10 +249,10 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
     """
     api = get_endpoint_urls()
 
-    # http://localhost:8000/dashboard/api/measurements/?ci_dataset=cfht&metric=AM1
+    # http://localhost:8000/dashboard/api/measurements/?job__ci_dataset=cfht&metric=AM1
 
     r = requests.get(api['measurements'],
-                     params={'ci_dataset': selected_dataset,
+                     params={'job__ci_dataset': selected_dataset,
                              'metric': selected_metric})
     r.raise_for_status()
 
@@ -274,7 +274,7 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
         for page in range(initial_page, num_pages + 1):
             r = requests.get(
                 api['measurements'],
-                params={'ci_dataset': selected_dataset,
+                params={'job__ci_dataset': selected_dataset,
                         'metric': selected_metric,
                         'page': page})
             r.raise_for_status()

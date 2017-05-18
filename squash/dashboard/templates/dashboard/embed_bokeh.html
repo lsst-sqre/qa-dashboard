@@ -1,30 +1,10 @@
 {% extends 'base.html' %}
+{% load cache %}
 
 {% block content %}
 
-<!-- Fix for bokeh vs. bootstrap css issue -->
-<style>
-.bk-root .bk-slick-header-column.bk-ui-state-default {
-height: 24px!important;
-}
-</style>
-
 <div class="container">
-    <div class="page-header">
-
-        {% if "monitor" in bokeh_app %}
-            <h1>Key Performance Metrics</h1>
-        {% else %}
-            <a class="btn btn-default"
-               href="/dashboard/monitor/"
-               role="button">Back</a>
-        {% endif %}
-    </div>
-
-    <div class="container">
-            {{bokeh_script|safe}}
-    </div>
-
+    {{bokeh_script|safe}}
 </div>
 
 {% endblock content %}
