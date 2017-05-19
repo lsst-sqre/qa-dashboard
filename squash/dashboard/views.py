@@ -65,7 +65,7 @@ class MeasurementViewSet(DefaultsMixin, CacheResponseMixin,
     """API endpoint consumed by the monitor app"""
 
     queryset = Measurement.objects.\
-        prefetch_related('job', 'metric').order_by('job__date')
+        prefetch_related('job', 'metric').order_by('-job__date')
     serializer_class = RegressionSerializer
     filter_fields = ('job__ci_dataset', 'metric')
 
