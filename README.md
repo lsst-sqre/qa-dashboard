@@ -8,7 +8,7 @@ the instructions below.
 
 ```
   git clone  https://github.com/lsst-sqre/qa-dashboard.git
-  make
+  docker build -t lsstsqre/squash .
   docker run -it -p 5006:5006 -p 8000:8000 lsstsqre/squash
 ```
 Then access the application at http://localhost:8000 
