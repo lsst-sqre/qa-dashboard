@@ -1,5 +1,20 @@
 # qa-dashboard
 
+For SQuaSH development you can build a docker image 
+or install the dependencies on a virtual environment following 
+the instructions below.
+
+## Building a docker image
+
+```
+  git clone  https://github.com/lsst-sqre/qa-dashboard.git
+  docker build -t lsstsqre/squash .
+  docker run -it -p 5006:5006 -p 8000:8000 lsstsqre/squash
+```
+Then access the application at http://localhost:8000 
+
+## Using virtualenv
+
 1. Clone the project, create a virtualenv and install dependencies
 ```
   git clone  https://github.com/lsst-sqre/qa-dashboard.git
