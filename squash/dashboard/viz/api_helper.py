@@ -197,7 +197,7 @@ def get_url_args(doc, defaults=None):
 
 
 # TODO: these functions are used by the monitor app and need refactoring
-def get_initial_page(page_size, num_pages, window):
+def get_last_page(page_size, num_pages, window):
 
     # Page size in hours assuming CI_TIME_INTERVAL
 
@@ -206,22 +206,22 @@ def get_initial_page(page_size, num_pages, window):
     page_window = page_size * CI_TIME_INTERVAL
 
     if window == 'weeks':
-        initial_page = num_pages - int((24*7)/page_window)
+        last_page = int((24*7)/page_window)
     elif window == 'months':
         # maximum window of 3 months
-        initial_page = num_pages - int((24*30*3)/page_window)
+        last_page = int((24*30*3)/page_window)
     elif window == 'years':
         # maximum window of 1 year
-        initial_page = num_pages - int((24*365)/page_window)
+        last_page = int((24*365)/page_window)
     else:
         # everything
-        initial_page = 1
+        last_page = num_pages
 
     # Make sure we have enough pages for the input time window
-    if initial_page < 1:
-        initial_page = 1
+    if last_page < 1:
+        last_page = 1
 
-    return initial_page
+    return last_page
 
 
 def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
@@ -269,9 +269,12 @@ def get_meas_by_dataset_and_metric(selected_dataset, selected_metric, window):
         # ceiling integer
         num_pages = int(count/page_size) + (count % page_size > 0)
 
-        initial_page = get_initial_page(page_size, num_pages, window)
+        last_page = get_last_page(page_size, num_pages, window)
 
-        for page in range(initial_page, num_pages + 1):
+        if last_page > num_pages:
+            last_page = num_pages
+
+        for page in range(1, last_page + 1):
             r = requests.get(
                 api['measurements'],
                 params={'job__ci_dataset': selected_dataset,
