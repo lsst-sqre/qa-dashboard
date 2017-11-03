@@ -1,4 +1,4 @@
-# qa-dashboard
+# qa-dashboard (deprecated)
 
 This project was a prototype for the LSST SQuaSH service which is now maintained in the following repositories:
 
